@@ -1,43 +1,87 @@
 {% extends "admin/core/base.html" %}
-{% load static %}
-{% load foundation %}
 
-{% block title %}{{ request.repository.name }} Moderators{% endblock %}
-{% block title-section %}{{ request.repository.name }} Moderators{% endblock %}
+{% block title %}{% trans "Moderators" %} | {{ request.repository.name }}{% endblock %}
+{% block title-section %}{{ request.repository.name }} {% trans "Moderators" %}{% endblock %}
 {% block title-sub %}Moderators handle submissions, updates, comments and reviews. Managers can also configure the repository.{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
-    <li>Moderators</li>
+  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
+  <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }} Manager</a></li>
+  <li>{% trans "Moderators" %}</li>
 {% endblock %}
 
 {% block body %}
-    <div class="row expanded">
-        <div class="large-12 columns">
-            <div class="box">
-                <div class="title-area">
-                    <h2>Choose Moderators</h2>
-                </div>
-                <div class="content">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form|foundation }}
-                        <button name="save" class="success button">Save Moderators</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+  <div class="rummage-portal">
+    <div>
+      {% include "admin/elements/list_filters.html" %}
+      <aside class="box">
+        <p>
+          {% if searching %}
+            Showing every account that matches. Choose <strong>Make moderator</strong> to add someone.
+          {% else %}
+            Showing the people who moderate {{ request.repository.name }}. To add someone, search for them by name or email.
+          {% endif %}
+        </p>
+        <p>Managers can moderate already, so they don't need to be made moderators.</p>
+      </aside>
     </div>
-{% endblock %}
-
-{% block js %}
-    <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
-    <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/SelectBox.js" %}"></script>
-    <script type="text/javascript" src="{% static "admin/js/SelectFilter2.js" %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static "admin/js/forms.css" %}" >
-    <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}" >
-{% endblock %}
+    <div class="box">
+      <div class="title-area">
+        <h2>{% if searching %}{% trans "Accounts" %}{% else %}{% trans "Moderators and managers" %}{% endif %}</h2>
+      </div>
+      <div>
+        {% include "common/elements/sorting.html" with form_id=facet_form.id %}
+      </div>
+      {% for account in account_list %}
+        <div class="callout">
+          <h3>
+            <strong>{{ account.full_name|default:"[No name]" }}</strong>
+          </h3>
+          <div class="rummage-result-details">
+            <div class="flex portrait-column landscape-column gap-0-25">
+              <div>{{ account.affiliation }}</div>
+              <div>{{ account.email }}</div>
+              <div>ID: <span>{{ account.pk }}</span></div>
+              <div class="flex wrap gap-0-25">
+                {% if account.is_manager %}
+                  <div class="label primary"><span class="fa fa-cog" aria-hidden="true"></span> {% trans "Manager" %}</div>
+                {% endif %}
+                {% if account.is_moderator %}
+                  <div class="label success"><span class="fa fa-check" aria-hidden="true"></span> {% trans "Moderator" %}</div>
+                {% endif %}
+                {% if not account.is_active %}
+                  <div class="label alert"><span class="fa fa-warning" aria-hidden="true"></span> {% trans "Inactive" %}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="flex portrait-column gap-2">
+              <div>
+                <h4 class="uppercase">{% trans "Actions" %}</h4>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="params_string" value="{{ params_string }}">
+                  {% if account.is_moderator %}
+                    <button class="small button alert flex gap-0-25" name="remove_moderator" value="{{ account.pk }}" type="submit">
+                      <span class="fa fa-user-times" aria-hidden="true"></span>
+                      {% trans "Remove moderator" %}
+                    </button>
+                  {% elif not account.is_manager %}
+                    <button class="small button flex gap-0-25" name="add_moderator" value="{{ account.pk }}" type="submit">
+                      <span class="fa fa-user-plus" aria-hidden="true"></span>
+                      {% trans "Make moderator" %}
+                    </button>
+                  {% endif %}
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p><strong>
+          {% if searching %}{% trans "No accounts match." %}{% else %}{% trans "No moderators yet. Search for someone to add them." %}{% endif %}
+        </strong></p>
+      {% endfor %}
+      {% include "common/elements/pagination.html" with form_id=facet_form.id %}
+    </div>
+  </div>
+{% endblock body %}

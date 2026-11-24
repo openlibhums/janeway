@@ -65,3 +65,64 @@ class TestModerators(PreprintFrozenAuthorTestBase):
             self.moderator,
             form.fields["submission_notification_recipients"].queryset,
         )
+
+
+@override_settings(URL_CONFIG="domain")
+class TestModeratorsPage(PreprintFrozenAuthorTestBase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.press.enable_preprints = True
+        cls.press.save()
+        cls.moderator = helpers.create_user(
+            "page_moderator@janeway.systems", first_name="Mona", last_name="Mod"
+        )
+        cls.repository.moderators.add(cls.moderator)
+        cls.candidate = helpers.create_user(
+            "candidate@janeway.systems", first_name="Cara", last_name="Candidate"
+        )
+
+    def get(self, **params):
+        self.client.force_login(self.manager)
+        return self.client.get(
+            reverse("repository_moderators"),
+            params,
+            SERVER_NAME=self.repository.domain,
+        )
+
+    def post(self, **data):
+        self.client.force_login(self.manager)
+        return self.client.post(
+            reverse("repository_moderators"),
+            data,
+            SERVER_NAME=self.repository.domain,
+        )
+
+    def test_lists_moderators_and_managers_by_default(self):
+        accounts = list(self.get().context["account_list"])
+        self.assertIn(self.moderator, accounts)
+        self.assertIn(self.manager, accounts)
+        self.assertNotIn(self.candidate, accounts)
+
+    def test_search_finds_any_account(self):
+        response = self.get(q="candidate@janeway.systems")
+        self.assertIn(self.candidate, response.context["account_list"])
+        self.assertContains(response, "Make moderator")
+
+    def test_filter_to_moderators(self):
+        accounts = list(self.get(is_moderator="1").context["account_list"])
+        self.assertEqual(accounts, [self.moderator])
+
+    def test_add_and_remove_a_moderator(self):
+        response = self.post(
+            add_moderator=self.candidate.pk,
+            params_string="q=candidate",
+        )
+        self.assertRedirects(
+            response,
+            reverse("repository_moderators") + "?q=candidate",
+            fetch_redirect_response=False,
+        )
+        self.assertIn(self.candidate, self.repository.moderators.all())
+        self.post(remove_moderator=self.candidate.pk)
+        self.assertNotIn(self.candidate, self.repository.moderators.all())

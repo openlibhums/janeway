@@ -834,19 +834,6 @@ class RepositorySubmission(RepositoryBase):
         }
 
 
-class RepositoryModeratorsForm(forms.ModelForm):
-    class Meta:
-        model = models.Repository
-        fields = ("moderators",)
-        widgets = {
-            "moderators": FilteredSelectMultiple(
-                "Accounts",
-                False,
-                attrs={"rows": "2"},
-            ),
-        }
-
-
 class RepositoryEmails(RepositoryBase):
     class Meta:
         model = models.Repository

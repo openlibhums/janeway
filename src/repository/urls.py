@@ -357,7 +357,7 @@ urlpatterns = [
     re_path(r"^manager/versions/$", views.version_queue, name="version_queue"),
     re_path(
         r"^manager/moderators/$",
-        views.repository_moderators,
+        views.RepositoryModerators.as_view(),
         name="repository_moderators",
     ),
     re_path(

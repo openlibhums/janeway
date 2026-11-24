@@ -8,7 +8,7 @@ from dateutil import tz
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Count, F, Q
+from django.db.models import Count, Exists, F, OuterRef, Q
 from django.db.models.query import RawQuerySet
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -20,6 +20,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 from django.utils.http import urlencode
+from django.utils.decorators import method_decorator
 
 
 from core import (
@@ -2727,26 +2728,100 @@ def manage_reviewers(request):
     )
 
 
-@is_repository_manager
-def repository_moderators(request):
+@method_decorator(is_repository_manager, name="dispatch")
+class RepositoryModerators(core_views.GenericFacetedListView):
     """
-    Allows repository managers to choose the repository's moderators.
+    Lets repository managers find accounts and make them moderators.
+    Without a search or filter it lists the people who already moderate.
     """
-    form = forms.RepositoryModeratorsForm(instance=request.repository)
-    if request.POST:
-        form = forms.RepositoryModeratorsForm(
-            request.POST,
-            instance=request.repository,
+
+    model = core_models.Account
+    template_name = "admin/repository/moderators.html"
+
+    def get_facets(self):
+        repository = self.request.repository
+        return {
+            "q": {
+                "type": "search",
+                "field_label": _("Search"),
+            },
+            "is_moderator": {
+                "type": "boolean",
+                "field_label": _("Moderator"),
+                "true_label": _("Moderators"),
+                "false_label": _("Not moderators"),
+                "annotations": {
+                    "is_moderator": Exists(
+                        models.Repository.moderators.through.objects.filter(
+                            repository=repository,
+                            account=OuterRef("pk"),
+                        )
+                    ),
+                },
+            },
+            "is_manager": {
+                "type": "boolean",
+                "field_label": _("Manager"),
+                "true_label": _("Managers"),
+                "false_label": _("Not managers"),
+                "annotations": {
+                    "is_manager": Exists(
+                        models.Repository.managers.through.objects.filter(
+                            repository=repository,
+                            account=OuterRef("pk"),
+                        )
+                    ),
+                },
+            },
+            "is_active": {
+                "type": "boolean",
+                "field_label": _("Active status"),
+                "true_label": _("Active"),
+                "false_label": _("Inactive"),
+            },
+        }
+
+    def get_order_by_choices(self):
+        return [
+            ("last_name", _("Last name A-Z")),
+            ("-last_name", _("Last name Z-A")),
+            ("-date_joined", _("Newest")),
+            ("date_joined", _("Oldest")),
+        ]
+
+    def is_searching(self, params):
+        return any(params.get(key) not in (None, "") for key in self.get_facets())
+
+    def get_queryset(self, params_querydict=None):
+        queryset = super().get_queryset(params_querydict=params_querydict)
+        params = params_querydict or self.request.GET
+        if not self.is_searching(params):
+            queryset = queryset.filter(Q(is_moderator=True) | Q(is_manager=True))
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["searching"] = self.is_searching(self.request.GET)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        account_id = request.POST.get("add_moderator") or request.POST.get(
+            "remove_moderator"
         )
-        if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.SUCCESS, "Moderators saved.")
-            return redirect(reverse("repository_moderators"))
-    template = "admin/repository/moderators.html"
-    context = {
-        "form": form,
-    }
-    return render(request, template, context)
+        if account_id:
+            account = get_object_or_404(core_models.Account, pk=account_id)
+            if "add_moderator" in request.POST:
+                request.repository.moderators.add(account)
+                message = _("{account} is now a moderator.")
+            else:
+                request.repository.moderators.remove(account)
+                message = _("{account} is no longer a moderator.")
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                message.format(account=account.full_name() or account.email),
+            )
+        return super().post(request, *args, **kwargs)
 
 
 @is_repository_manager
