@@ -1,0 +1,4 @@
+<div class="inbox-empty">
+    <span class="fa {% if search %}fa-search{% else %}{{ active_tab.icon }}{% endif %}" aria-hidden="true"></span>
+    <p>{% if search %}Nothing in {{ active_tab.label|lower }} matches “{{ search }}”.{% else %}Nothing in {{ active_tab.label|lower }}.{% endif %}</p>
+</div>

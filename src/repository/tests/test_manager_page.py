@@ -148,7 +148,7 @@ class TestDashboardSearch(PreprintFrozenAuthorTestBase):
     def test_no_match(self):
         response = self.get(search="volcanoes")
         self.assertEqual(len(response.context["page"].object_list), 0)
-        self.assertContains(response, "Nothing here matches")
+        self.assertContains(response, "matches “volcanoes”")
 
     def test_drafts_tab(self):
         draft = helpers.create_preprint(

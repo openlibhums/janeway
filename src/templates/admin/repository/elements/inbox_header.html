@@ -1,0 +1,4 @@
+<div class="inbox-header">
+    <h2><span class="fa fa-fw {{ active_tab.icon }}" aria-hidden="true"></span> {{ active_tab.label }}</h2>
+    <span>{% if search %}{{ page.paginator.count }} match{{ page.paginator.count|pluralize:"es" }} for “{{ search }}” · <a href="?tab={{ active_tab.key }}">Clear</a>{% else %}{{ page.paginator.count }} · newest first{% endif %}</span>
+</div>

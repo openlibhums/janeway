@@ -1,0 +1,1 @@
+{% now "Y-m-d" as today %}{% now "Y" as this_year %}<time class="inbox-date" datetime="{{ value|date:'c' }}" title="{{ label }} {{ value|date:'j F Y, H:i' }}">{% if value|date:"Y-m-d" == today %}{{ value|time:"H:i" }}{% elif value|date:"Y" == this_year %}{{ value|date:"j M" }}{% else %}{{ value|date:"j M Y" }}{% endif %}</time>

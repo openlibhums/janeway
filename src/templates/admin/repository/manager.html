@@ -18,22 +18,20 @@
                 {% include "admin/repository/elements/status_folders.html" with label=request.repository.object_name_plural %}
             </div>
             <div class="box">
-                <div class="title-area">
-                    <h2>Other queues</h2>
-                </div>
+                <h2 class="inbox-folders-title">Other queues</h2>
                 <nav class="inbox-folders" aria-label="Other queues">
-                    <ul class="menu vertical menu-hover">
-                        <li><a href="{% url 'version_queue' %}"><span class="flex space-between items-center"><span>Versions</span><span class="badge">{{ version_queue|length }}</span></span></a></li>
+                    <ul class="menu vertical">
+                        <li><a href="{% url 'version_queue' %}"><span class="fa fa-fw fa-files-o" aria-hidden="true"></span><span class="inbox-folder-label">Versions</span><span class="badge">{{ version_queue|length }}</span></a></li>
                         {% if request.repository.enable_comments %}
-                            <li><a href="{% url 'repository_manager_comment_list' %}"><span class="flex space-between items-center"><span>Comments</span><span class="badge">{{ comments_awaiting_moderation.count }}</span></span></a></li>
+                            <li><a href="{% url 'repository_manager_comment_list' %}"><span class="fa fa-fw fa-comments-o" aria-hidden="true"></span><span class="inbox-folder-label">Comments</span><span class="badge">{{ comments_awaiting_moderation.count }}</span></a></li>
                         {% endif %}
                         {% if request.repository.is_institutional and request.repository.request_copy %}
-                            <li><a href="{% url 'repository_copy_requests' %}">Requests for a copy</a></li>
+                            <li><a href="{% url 'repository_copy_requests' %}"><span class="fa fa-fw fa-envelope-o" aria-hidden="true"></span><span class="inbox-folder-label">Requests for a copy</span></a></li>
                         {% endif %}
                         {% if request.user.is_staff or repository_manager %}
                             {% url 'report_preprints_metrics' as reporting_url %}
-                            {% if reporting_url %}<li><a href="{{ reporting_url }}">Reports</a></li>{% endif %}
-                            <li><a href="{% url 'repository_moderators' %}">Moderators and managers</a></li>
+                            {% if reporting_url %}<li><a href="{{ reporting_url }}"><span class="fa fa-fw fa-bar-chart" aria-hidden="true"></span><span class="inbox-folder-label">Reports</span></a></li>{% endif %}
+                            <li><a href="{% url 'repository_moderators' %}"><span class="fa fa-fw fa-users" aria-hidden="true"></span><span class="inbox-folder-label">Moderators and managers</span></a></li>
                         {% endif %}
                     </ul>
                 </nav>
@@ -41,19 +39,24 @@
         </div>
         <div class="box">
             {% include "admin/repository/elements/status_search.html" with label="Search" %}
-            <div class="title-area">
-                <h2>{{ active_tab.label }}</h2>
-            </div>
+            {% include "admin/repository/elements/inbox_header.html" %}
             <div class="inbox-list">
                 {% for preprint in page %}
-                    <div class="inbox-row">
+                    <div class="inbox-row has-avatar">
+                        <span class="inbox-avatar" aria-hidden="true">{{ preprint.author_full_name|default:"?"|slice:":1"|upper }}</span>
                         <span class="inbox-from">{{ preprint.author_full_name|default:"[No author]" }}</span>
-                        <span class="inbox-date" title="{{ active_tab.date_label }}">{{ preprint.tab_date|date:"j M Y" }}</span>
-                        <span class="inbox-subject">{{ preprint.title|striptags }} <span class="inbox-meta">· {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}</span></span>
+                        {% include "admin/repository/elements/inbox_date.html" with value=preprint.tab_date label=active_tab.date_label %}
+                        <span class="inbox-subject">
+                            {{ preprint.title|striptags }}
+                        </span>
+                        <span class="inbox-meta">
+                            {% if preprint.submission_type %}<span class="inbox-tag">{{ preprint.submission_type.name }}</span>{% endif %}
+                            <span>ID {{ preprint.pk }}</span>
+                        </span>
                         <a class="box-link" href="{% url 'repository_manager_article' preprint.pk %}"><span class="show-for-sr">{{ preprint.title|striptags }}</span></a>
                     </div>
                 {% empty %}
-                    <p class="inbox-row">Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
+                    {% include "admin/repository/elements/inbox_empty.html" %}
                 {% endfor %}
             </div>
             {% include "admin/repository/elements/pagination_links.html" with page_obj=page param="page" label="Pages" %}

@@ -18,21 +18,22 @@
         </div>
         <div class="box">
             {% include "admin/repository/elements/status_search.html" with label="Search" %}
-            <div class="title-area">
-                <h2>{{ active_tab.label }}</h2>
-            </div>
+            {% include "admin/repository/elements/inbox_header.html" %}
             <div class="inbox-list">
                 {% for preprint in page %}
                     <div class="inbox-row">
                         <span class="inbox-from">{{ preprint.title|striptags|default:"[No title]" }}</span>
-                        <span class="inbox-date">{{ active_tab.date_label }} {{ preprint.tab_date|date:"j M Y" }}</span>
-                        <span class="inbox-subject inbox-meta">
-                            {% if preprint.submission_type %}{{ preprint.submission_type.name }} · {% endif %}ID {{ preprint.pk }}
-                            {% if active_tab.key == "review" %} · {% if preprint.date_accepted %}Accepted{% else %}Under consideration{% endif %}{% endif %}
+                        {% include "admin/repository/elements/inbox_date.html" with value=preprint.tab_date label=active_tab.date_label %}
+                        <span class="inbox-meta">
+                            {% if active_tab.key == "review" %}
+                                {% if preprint.date_accepted %}<span class="inbox-tag success">Accepted</span>{% else %}<span class="inbox-tag warning">Under consideration</span>{% endif %}
+                            {% endif %}
+                            {% if preprint.submission_type %}<span class="inbox-tag">{{ preprint.submission_type.name }}</span>{% endif %}
+                            <span>ID {{ preprint.pk }}</span>
                             {% if active_tab.key == "published" %}
-                                · <span class="fa fa-eye" aria-hidden="true"></span> {{ preprint.view_count }} view{{ preprint.view_count|pluralize }}
-                                · <span class="fa fa-download" aria-hidden="true"></span> {{ preprint.download_count }} download{{ preprint.download_count|pluralize }}
-                                · <span class="fa fa-comment" aria-hidden="true"></span> {{ preprint.comment_count }} comment{{ preprint.comment_count|pluralize }}
+                                <span><span class="fa fa-eye" aria-hidden="true"></span> {{ preprint.view_count }}<span class="show-for-sr"> views</span></span>
+                                <span><span class="fa fa-download" aria-hidden="true"></span> {{ preprint.download_count }}<span class="show-for-sr"> downloads</span></span>
+                                <span><span class="fa fa-comment-o" aria-hidden="true"></span> {{ preprint.comment_count }}<span class="show-for-sr"> comments</span></span>
                             {% endif %}
                         </span>
                         {% if active_tab.key == "drafts" %}
@@ -46,7 +47,7 @@
                         {% endif %}
                     </div>
                 {% empty %}
-                    <p class="inbox-row">Nothing here{% if search %} matches “{{ search }}”{% endif %}.</p>
+                    {% include "admin/repository/elements/inbox_empty.html" %}
                 {% endfor %}
             </div>
             {% include "admin/repository/elements/pagination_links.html" with page_obj=page param="page" label="Pages" %}

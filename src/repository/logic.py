@@ -378,6 +378,15 @@ TAB_DATE_LABELS = {
     "date_declined": _("Declined"),
 }
 
+TAB_ICONS = {
+    "new": "fa-inbox",
+    "accepted": "fa-check",
+    "published": "fa-globe",
+    "rejected": "fa-ban",
+    "drafts": "fa-pencil",
+    "review": "fa-hourglass-half",
+}
+
 UNPUBLISHED = Q(date_published__isnull=True, date_declined__isnull=True)
 
 MANAGER_TABS = [
@@ -437,6 +446,7 @@ def status_tabs(request, preprints, tabs, search):
             {
                 "key": key,
                 "label": label,
+                "icon": TAB_ICONS.get(key, "fa-folder-o"),
                 "date_label": TAB_DATE_LABELS[date_field],
                 "queryset": queryset,
                 "count": queryset.count(),

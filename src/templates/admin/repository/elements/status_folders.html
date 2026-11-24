@@ -1,12 +1,11 @@
 <nav class="inbox-folders" aria-label="{{ label }}">
-    <ul class="menu vertical menu-hover">
+    <ul class="menu vertical">
         {% for tab in tabs %}
             <li{% if tab.active %} class="active"{% endif %}>
                 <a href="?{{ tab.query }}"{% if tab.active %} aria-current="page"{% endif %}>
-                    <span class="flex space-between items-center">
-                        <span>{{ tab.label }}</span>
-                        <span class="badge">{{ tab.count }}</span>
-                    </span>
+                    <span class="fa fa-fw {{ tab.icon }}" aria-hidden="true"></span>
+                    <span class="inbox-folder-label">{{ tab.label }}</span>
+                    <span class="badge">{{ tab.count }}</span>
                 </a>
             </li>
         {% endfor %}
