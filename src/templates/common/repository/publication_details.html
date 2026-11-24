@@ -1,6 +1,6 @@
 {% load i18n %}
 {# A version's publication details on a public page. Needs: details. #}
-<ul class="no-bullet publication-details">
+<ul class="no-bullet list-no-bullet publication-details">
   {% if details.venue_line %}<li>{% trans "Published in" %} {{ details.venue_line }}</li>{% endif %}
   {% if details.publisher %}<li>{% trans "Publisher" %}: {{ details.publisher }}</li>{% endif %}
   {% if details.publication_status %}<li>{% trans "Status" %}: {{ details.get_publication_status_display }}</li>{% endif %}
