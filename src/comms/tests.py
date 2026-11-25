@@ -1,5 +1,7 @@
 import datetime
 
+from django.conf import settings
+from django.templatetags.static import static
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -220,4 +222,129 @@ class NewsItemOrderingTest(TestCase):
         self.assertLess(
             items.index(self.item_seq_1),
             items.index(self.item_seq_2),
+        )
+
+
+class NewsItemBestImageURLTests(TestCase):
+    """
+    Covers every route through NewsItem.best_image_url, including the
+    regression from #3501: default image fallbacks are media files
+    served from the root of the domain, so their URLs must not gain a
+    journal code prefix in path mode.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.default_carousel_image = "press_carousel/test-carousel.jpg"
+        cls.press.save()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.journal_one.default_large_image = "cover_images/test-cover.jpg"
+        cls.journal_one.save()
+        cls.journal_item = helpers.create_news_item(
+            ContentType.objects.get_for_model(cls.journal_one),
+            cls.journal_one.pk,
+        )
+        cls.journal_two_item = helpers.create_news_item(
+            ContentType.objects.get_for_model(cls.journal_two),
+            cls.journal_two.pk,
+        )
+        cls.press_item = helpers.create_news_item(
+            ContentType.objects.get_for_model(cls.press),
+            cls.press.pk,
+        )
+        cls.image_file = core_models.File.objects.create(
+            mime_type="image/jpeg",
+            original_filename="dedicated.jpg",
+            uuid_filename="dedicated.jpg",
+        )
+
+    def download_url_path(self, item):
+        return reverse(
+            "news_file_download",
+            kwargs={
+                "identifier_type": "id",
+                "identifier": item.pk,
+                "file_id": self.image_file.pk,
+            },
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_dedicated_image_uses_journal_url_in_path_mode(self):
+        self.journal_item.large_image_file = self.image_file
+        self.assertEqual(
+            self.journal_item.best_image_url(),
+            "http://{}/{}{}".format(
+                self.press.domain,
+                self.journal_one.code,
+                self.download_url_path(self.journal_item),
+            ),
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_dedicated_image_uses_journal_domain_in_domain_mode(self):
+        self.journal_item.large_image_file = self.image_file
+        self.assertEqual(
+            self.journal_item.best_image_url(),
+            "http://{}{}".format(
+                self.journal_one.domain,
+                self.download_url_path(self.journal_item),
+            ),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_dedicated_image_uses_press_url(self):
+        self.press_item.large_image_file = self.image_file
+        self.assertEqual(
+            self.press_item.best_image_url(),
+            "http://{}{}".format(
+                self.press.domain,
+                self.download_url_path(self.press_item),
+            ),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_default_image_served_from_domain_root_in_path_mode(self):
+        self.assertEqual(
+            self.journal_item.best_image_url(),
+            f"http://{self.press.domain}/media/cover_images/test-cover.jpg",
+        )
+
+    @override_settings(URL_CONFIG="domain")
+    def test_journal_default_image_served_from_domain_root_in_domain_mode(self):
+        self.assertEqual(
+            self.journal_item.best_image_url(),
+            f"http://{self.press.domain}/media/cover_images/test-cover.jpg",
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_falls_back_to_press_image_from_domain_root(self):
+        self.assertEqual(
+            self.journal_two_item.best_image_url(),
+            f"http://{self.press.domain}/media/press_carousel/test-carousel.jpg",
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_default_image_served_from_domain_root(self):
+        self.assertEqual(
+            self.press_item.best_image_url(),
+            f"http://{self.press.domain}/media/press_carousel/test-carousel.jpg",
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_journal_item_without_any_images_uses_static_fallback(self):
+        self.press.default_carousel_image = None
+        self.press.save()
+        self.assertEqual(
+            self.journal_two_item.best_image_url(),
+            static(settings.HERO_IMAGE_FALLBACK),
+        )
+
+    @override_settings(URL_CONFIG="path")
+    def test_press_item_without_any_images_uses_static_fallback(self):
+        self.press.default_carousel_image = None
+        self.press.save()
+        self.assertEqual(
+            self.press_item.best_image_url(),
+            static(settings.HERO_IMAGE_FALLBACK),
         )
