@@ -5,10 +5,7 @@
   Types{% endblock %}
 
 {% block breadcrumbs %}
-  <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-  <li>
-    <a href="{% url 'preprints_manager' %}">{{ request.repository.object_name|capfirst }}
-      Manager</a></li>
+  {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
   <li>{{ preprint.title|safe }}</li>
 {% endblock %}
 

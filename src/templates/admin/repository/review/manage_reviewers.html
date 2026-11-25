@@ -7,8 +7,7 @@
 {% block title-sub %}Lists and manage reviewers for {{ request.repository.name }}.{% endblock %}
 
 {% block breadcrumbs %}
-    <li><a href="{% url 'core_manager_index' %}">Press Manager</a></li>
-    <li><a href="{% url 'preprints_manager' %}">{{ request.repository.object_name_plural }} Manager</a></li>
+    {% include "admin/elements/breadcrumbs/repository_manager_base.html" %}
     <li>Reviewers</li>
 {% endblock %}
 
