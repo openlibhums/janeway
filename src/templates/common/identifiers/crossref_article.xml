@@ -11,8 +11,8 @@
             {% include "common/identifiers/crossref_contributors.xml" %}
 
             {% if article.abstract  and article.scheduled %}
-                <jats:abstract>
-                    <jats:p>{{ article.get_clean_abstract }}</jats:p>
+                <jats:abstract xmlns="http://www.ncbi.nlm.nih.gov/JATS1">
+                    {{ article.clean_abstract|safe }}
                 </jats:abstract>
             {% endif %}
 

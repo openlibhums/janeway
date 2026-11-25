@@ -233,6 +233,7 @@ class TestLogic(TestCase):
         expected_data = {
             "title": self.article_published.title,
             "abstract": "",
+            "clean_abstract": "",
             "url": self.article_published.url,
             "authors": [
                 author.email for author in self.article_published.frozenauthor_set.all()
@@ -259,6 +260,7 @@ class TestLogic(TestCase):
         expected_data = {
             "title": self.article_one.title,
             "abstract": self.article_one.abstract,
+            "clean_abstract": "<p>Test abstract.</p>",
             "url": self.article_one.url,
             "authors": [
                 author.email for author in self.article_one.frozenauthor_set.all()
@@ -485,6 +487,148 @@ class TestLogic(TestCase):
             missing_settings,
             ["crossref_prefix", "crossref_username", "crossref_password"],
         )
+
+
+class TestSendCrossrefDepositValidation(TestCase):
+    """
+    Regression tests for pre-deposit validation in send_crossref_deposit() (Issue #5677).
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.journal, _ = helpers.create_journals()
+
+        save_setting("general", "journal_issn", cls.journal, "1234-5678")
+        save_setting("general", "print_issn", cls.journal, "8765-4321")
+        save_setting("Identifiers", "use_crossref", cls.journal, True)
+        save_setting("Identifiers", "crossref_prefix", cls.journal, "10.0000")
+        save_setting(
+            "Identifiers", "crossref_email", cls.journal, "sample_email@example.com"
+        )
+        save_setting("Identifiers", "crossref_name", cls.journal, "Journal Name")
+        save_setting("Identifiers", "crossref_registrant", cls.journal, "registrant")
+        save_setting("Identifiers", "crossref_username", cls.journal, "testuser")
+        save_setting("Identifiers", "crossref_password", cls.journal, "testpass")
+
+        cls.issue = helpers.create_issue(cls.journal, vol=1, number=1)
+
+    def _create_scheduled_article_with_abstract(
+        self, abstract="<p>Valid abstract content.</p>"
+    ):
+        article = helpers.create_article(self.journal, with_author=True)
+        article.stage = submission_models.STAGE_PUBLISHED
+        article.date_published = timezone.now()
+        article.abstract = abstract
+        article.primary_issue = self.issue
+        article.save()
+        self.issue.articles.add(article)
+        identifier = logic.generate_crossref_doi_with_pattern(article)
+        return article, identifier
+
+    @mock.patch("identifiers.logic.Depositor")
+    def test_successful_conversion_allows_deposit_to_proceed(self, mock_depositor):
+        """1. Successful conversion allows XML generation to proceed and registers deposit."""
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.text = "Success"
+        mock_depositor.return_value.register_doi.return_value = mock_response
+
+        article, identifier = self._create_scheduled_article_with_abstract()
+        initial_deposit_count = models.CrossrefDeposit.objects.count()
+
+        status, error = logic.send_crossref_deposit(
+            test_mode=True, identifiers=[identifier], journal=self.journal
+        )
+
+        self.assertFalse(error)
+        self.assertIn("Deposit sent", status)
+        self.assertEqual(
+            models.CrossrefDeposit.objects.count(), initial_deposit_count + 1
+        )
+        mock_depositor.return_value.register_doi.assert_called_once()
+        self.assertIsInstance(status, str)
+        self.assertIsInstance(error, bool)
+
+    @mock.patch("identifiers.logic.Depositor")
+    def test_file_not_found_aborts_deposit(self, mock_depositor):
+        """2, 5, 6, 7. FileNotFoundError aborts deposit without creating records or calling register_doi."""
+        article, identifier = self._create_scheduled_article_with_abstract()
+        initial_deposit_count = models.CrossrefDeposit.objects.count()
+
+        with mock.patch.object(
+            article, "get_clean_abstract", side_effect=FileNotFoundError("Missing stylesheet")
+        ):
+            status, error = logic.send_crossref_deposit(
+                test_mode=True, identifiers=[identifier], journal=self.journal
+            )
+
+        self.assertTrue(error)
+        self.assertIn("Abstract conversion failed", status)
+        self.assertEqual(models.CrossrefDeposit.objects.count(), initial_deposit_count)
+        mock_depositor.return_value.register_doi.assert_not_called()
+        self.assertIsInstance(status, str)
+        self.assertIsInstance(error, bool)
+
+    @mock.patch("identifiers.logic.Depositor")
+    def test_xslt_error_aborts_deposit(self, mock_depositor):
+        """3, 5, 6, 7. XSLT conversion errors abort deposit without creating records or calling register_doi."""
+        article, identifier = self._create_scheduled_article_with_abstract()
+        initial_deposit_count = models.CrossrefDeposit.objects.count()
+
+        with mock.patch.object(
+            article, "get_clean_abstract", side_effect=etree.XSLTError("XSLT parsing error")
+        ):
+            status, error = logic.send_crossref_deposit(
+                test_mode=True, identifiers=[identifier], journal=self.journal
+            )
+
+        self.assertTrue(error)
+        self.assertIn("Abstract conversion failed", status)
+        self.assertEqual(models.CrossrefDeposit.objects.count(), initial_deposit_count)
+        mock_depositor.return_value.register_doi.assert_not_called()
+        self.assertIsInstance(status, str)
+        self.assertIsInstance(error, bool)
+
+    @mock.patch("identifiers.logic.Depositor")
+    def test_empty_conversion_output_rejected_when_abstract_expected(
+        self, mock_depositor
+    ):
+        """4, 5, 6, 7. Empty conversion output is rejected when an abstract was expected."""
+        article, identifier = self._create_scheduled_article_with_abstract(
+            "<p>Non-empty source abstract</p>"
+        )
+        initial_deposit_count = models.CrossrefDeposit.objects.count()
+
+        with mock.patch.object(article, "get_clean_abstract", return_value=""):
+            status, error = logic.send_crossref_deposit(
+                test_mode=True, identifiers=[identifier], journal=self.journal
+            )
+
+        self.assertTrue(error)
+        self.assertIn("Abstract conversion produced empty output", status)
+        self.assertEqual(models.CrossrefDeposit.objects.count(), initial_deposit_count)
+        mock_depositor.return_value.register_doi.assert_not_called()
+        self.assertIsInstance(status, str)
+        self.assertIsInstance(error, bool)
+
+    @mock.patch("identifiers.logic.Depositor")
+    def test_missing_article_on_identifier_returns_error(self, mock_depositor):
+        """Verification of identifier without article error handling."""
+        mock_identifier = mock.Mock()
+        mock_identifier.article = None
+        mock_identifier.pk = 99999
+
+        status, error = logic.send_crossref_deposit(
+            test_mode=True, identifiers=[mock_identifier], journal=self.journal
+        )
+
+        self.assertTrue(error)
+        self.assertIn("Identifier 99999 has no associated article", status)
+        mock_depositor.return_value.register_doi.assert_not_called()
+        self.assertIsInstance(status, str)
+        self.assertIsInstance(error, bool)
 
 
 class TestReviewDoiMinting(TestCase):
