@@ -2,8 +2,10 @@ import uuid
 
 from rest_framework import serializers, validators
 
+from django.conf import settings
 from django.db import transaction
 from django.shortcuts import reverse
+from modeltranslation.utils import build_localized_fieldname
 
 from core import models as core_models, logic as core_logic
 from journal import models as journal_models
@@ -11,6 +13,55 @@ from submission import models as submission_models
 from repository import models as repository_models
 from identifiers import models as identifier_models
 from events import logic as event_logic
+
+
+def translatable_repository(instance):
+    """Return the repository governing the active languages for a translatable
+    preprint object (Preprint, PreprintVersion or VersionQueue)."""
+    if hasattr(instance, "repository"):
+        return instance.repository
+    return instance.preprint.repository
+
+
+def apply_translations(instance, field_name, translations):
+    """Set per-language values for a modeltranslation-managed field from a
+    ``{language_code: value}`` mapping. Does not save the instance."""
+    if not translations:
+        return
+    for code, value in translations.items():
+        setattr(instance, build_localized_fieldname(field_name, code), value)
+
+
+class TranslationsField(serializers.DictField):
+    """A readable and writable ``{language_code: value}`` map for a
+    modeltranslation-managed field. On read it exposes one entry per language
+    the preprint's repository accepts; on write it accepts a partial mapping."""
+
+    def __init__(self, translated_field, **kwargs):
+        self.translated_field = translated_field
+        kwargs.setdefault("required", False)
+        kwargs.setdefault(
+            "child",
+            serializers.CharField(allow_blank=True, trim_whitespace=False),
+        )
+        super().__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        # to_representation builds the map from the instance itself.
+        return instance
+
+    def to_representation(self, instance):
+        repository = translatable_repository(instance)
+        languages = repository.languages or [settings.LANGUAGE_CODE]
+        return {
+            code: getattr(
+                instance,
+                build_localized_fieldname(self.translated_field, code),
+                "",
+            )
+            or ""
+            for code in languages
+        }
 
 
 class LicenceSerializer(serializers.HyperlinkedModelSerializer):
@@ -202,8 +253,13 @@ class PreprintVersionSerializer(serializers.ModelSerializer):
             "date_time",
             "title",
             "abstract",
+            "title_translations",
+            "abstract_translations",
             "public_download_url",
         )
+
+    title_translations = TranslationsField("title", read_only=True)
+    abstract_translations = TranslationsField("abstract", read_only=True)
 
 
 class PreprintSupplementaryFileSerializer(serializers.ModelSerializer):
@@ -372,6 +428,8 @@ class PreprintSerializer(serializers.ModelSerializer):
             "pk",
             "title",
             "abstract",
+            "title_translations",
+            "abstract_translations",
             "stage",
             "license",
             "keywords",
@@ -389,6 +447,8 @@ class PreprintSerializer(serializers.ModelSerializer):
         )
         depth = 2
 
+    title_translations = TranslationsField("title", read_only=True)
+    abstract_translations = TranslationsField("abstract", read_only=True)
     authors = PreprintAccountSerializer(
         many=True,
     )
@@ -435,6 +495,15 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             preprint_doi=validated_data.get("preprint_doi"),
             comments_editor=validated_data.get("comments_editor"),
         )
+
+        apply_translations(preprint, "title", validated_data.get("title_translations"))
+        apply_translations(
+            preprint, "abstract", validated_data.get("abstract_translations")
+        )
+        if validated_data.get("title_translations") or validated_data.get(
+            "abstract_translations"
+        ):
+            preprint.save()
 
         for i, author_data in enumerate(validated_data.get("authors", [])):
             author_email = author_data.pop("email").lower()
@@ -530,6 +599,10 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
         instance.doi = validated_data.get("doi")
         instance.preprint_doi = validated_data.get("preprint_doi")
         instance.comments_editor = validated_data.get("comments_editor")
+        apply_translations(instance, "title", validated_data.get("title_translations"))
+        apply_translations(
+            instance, "abstract", validated_data.get("abstract_translations")
+        )
         instance.save()
 
         authors = []
@@ -633,6 +706,8 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             "authors",
             "title",
             "abstract",
+            "title_translations",
+            "abstract_translations",
             "stage",
             "license",
             "keywords",
@@ -649,6 +724,8 @@ class PreprintCreateSerializer(serializers.ModelSerializer):
             "comments_editor",
         )
 
+    title_translations = TranslationsField("title")
+    abstract_translations = TranslationsField("abstract")
     authors = PreprintAccountSerializer(
         many=True,
     )
@@ -689,9 +766,14 @@ class VersionQueueCreateSerializer(serializers.ModelSerializer):
             "update_type",
             "title",
             "abstract",
+            "title_translations",
+            "abstract_translations",
             "published_doi",
             "file",
         )
+
+    title_translations = TranslationsField("title")
+    abstract_translations = TranslationsField("abstract")
 
     def validate(self, data):
         request = self.context.get("request", None)
@@ -707,6 +789,16 @@ class VersionQueueCreateSerializer(serializers.ModelSerializer):
 
         return data
 
+    def create(self, validated_data):
+        title_translations = validated_data.pop("title_translations", None)
+        abstract_translations = validated_data.pop("abstract_translations", None)
+        version_queue = super().create(validated_data)
+        apply_translations(version_queue, "title", title_translations)
+        apply_translations(version_queue, "abstract", abstract_translations)
+        if title_translations or abstract_translations:
+            version_queue.save()
+        return version_queue
+
 
 class VersionQueueSerializer(serializers.ModelSerializer):
     class Meta:
@@ -720,8 +812,13 @@ class VersionQueueSerializer(serializers.ModelSerializer):
             "published_doi",
             "title",
             "abstract",
+            "title_translations",
+            "abstract_translations",
             "file",
         )
+
+    title_translations = TranslationsField("title", read_only=True)
+    abstract_translations = TranslationsField("abstract", read_only=True)
 
 
 class RegisterAccountSerializer(serializers.ModelSerializer):

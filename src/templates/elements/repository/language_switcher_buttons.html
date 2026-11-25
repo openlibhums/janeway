@@ -1,0 +1,16 @@
+{% load i18n %}
+
+{% if request.repository.languages|length > 1 %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% get_available_languages as LANGUAGES %}
+    {% for lang_code, lang_name in LANGUAGES %}
+        {% if lang_code in request.available_languages %}
+        <li>
+            <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.path }}" />
+                <button name="language" value="{{ lang_code }}" class="tiny success button{% if lang_code == LANGUAGE_CODE %} flag-active{% endif %}">{{ lang_name }}</button>
+            </form>
+        </li>
+        {% endif %}
+    {% endfor %}
+{% endif %}

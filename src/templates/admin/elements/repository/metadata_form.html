@@ -3,14 +3,31 @@
 {% load field %}
 
 {% include "elements/forms/errors.html" with form=form %}
-<div class="large-12 columns">
-    {{ form.title|foundation }}
-</div>
+{% if form.language_field_names %}
+    <div class="large-12 columns">
+        <div class="callout primary">
+            <p>{% trans "This repository accepts submissions in multiple languages. Please provide a title and abstract in the primary language. Translations are optional." %}</p>
+        </div>
+    </div>
+    {% for field_name in form.language_field_names %}
+        {% get_form_field form field_name as lang_field %}
+        <div class="large-12 columns">
+            {{ lang_field|foundation }}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="large-12 columns">
+        {{ form.title|foundation }}
+    </div>
+    <div class="large-12 columns">
+        {{ form.abstract|foundation }}
+    </div>
+{% endif %}
 <div class="large-12 columns">
     {{ form.submission_type|foundation }}
 </div>
 <div class="large-12 columns">
-    {{ form.abstract|foundation }}
+    {{ form.language|foundation }}
 </div>
 <div class="large-12 columns">
     {{ form.license|foundation }}

@@ -150,6 +150,7 @@
                     {% endwith %}
                     <h2>{% trans "Metadata" %}</h2>
                     <ul>
+                        {% if preprint.language_name %}<li>{% trans "Language" %}: {{ preprint.language_name }}</li>{% endif %}
                         <li>{% trans "Published" %}: {{ preprint.date_published|date_human }}</li>
                         <li>{% trans "Last Updated" %}: {{ preprint.current_version.date_time|date_human }}</li>
                         {% if preprint.license %}<li>
