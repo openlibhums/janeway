@@ -24,7 +24,6 @@ from django.core.validators import validate_email, ValidationError
 
 from core import models as core_models, files
 from journal import models as journal_models, issue_forms
-from journal.forms import SearchForm
 from submission import models as submission_models
 from identifiers import models as identifier_models
 from utils import render_template, notify_helpers
@@ -485,6 +484,9 @@ def handle_search_controls(
     :param sort: 'title' or incoming sort
     :return: strings: search_term, keyword, sort, and redirect() or None.
     """
+    # Deferred import: as journal.forms imports journal.logic at module load
+    from journal.forms import SearchForm
+
     if request.POST:
         form = SearchForm(request.POST)
         if form.is_valid():
