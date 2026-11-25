@@ -42,14 +42,11 @@
             {% include "admin/repository/elements/inbox_header.html" %}
             <div class="inbox-list">
                 {% for preprint in page %}
-                    <div class="inbox-row has-avatar">
-                        <span class="inbox-avatar" aria-hidden="true">{{ preprint.author_full_name|default:"?"|slice:":1"|upper }}</span>
-                        <span class="inbox-from">{{ preprint.author_full_name|default:"[No author]" }}</span>
+                    <div class="inbox-row">
+                        <span class="inbox-from">{{ preprint.title|striptags|default:"[No title]" }}</span>
                         {% include "admin/repository/elements/inbox_date.html" with value=preprint.tab_date label=active_tab.date_label %}
-                        <span class="inbox-subject">
-                            {{ preprint.title|striptags }}
-                        </span>
                         <span class="inbox-meta">
+                            <span class="inbox-author">{{ preprint.author_full_name|default:"[No author]" }}</span>
                             {% if preprint.submission_type %}<span class="inbox-tag">{{ preprint.submission_type.name }}</span>{% endif %}
                             <span>ID {{ preprint.pk }}</span>
                         </span>

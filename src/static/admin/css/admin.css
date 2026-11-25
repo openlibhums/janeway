@@ -1051,6 +1051,20 @@ ul.menu {
     background: #1e64bb;
     color: #fefefe;
   }
+  @media (width <= 50rem) {
+    .menu.vertical {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      > li {
+        width: auto;
+      }
+    }
+    .menu a {
+      padding: 0.35rem 0.6rem;
+    }
+  }
 }
 
 .inbox-folders-title {
@@ -1117,26 +1131,14 @@ ul.menu {
   &:hover, &:focus-within {
     background: #f5f8fd;
   }
-  &.has-avatar {
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-  }
-  .inbox-avatar {
-    grid-row: span 3;
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background: #e8f0fc;
-    color: #1e64bb;
-    font-weight: 600;
-  }
   .inbox-from {
     font-weight: 600;
     color: #2b2f3a;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    @media (width > 50rem) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
   .inbox-date {
     font-size: 0.8125rem;
@@ -1144,16 +1146,7 @@ ul.menu {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-align: end;
-  }
-  .inbox-subject {
-    grid-column: span 2;
-    color: #404554;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  &:not(.has-avatar) .inbox-subject {
-    grid-column: 1;
+    align-self: start;
   }
   .inbox-meta {
     display: flex;
@@ -1163,8 +1156,9 @@ ul.menu {
     font-size: 0.8125rem;
     color: #5b5e61;
   }
-  &.has-avatar .inbox-meta {
-    grid-column: 2 / span 2;
+  .inbox-author {
+    color: #404554;
+    font-weight: 500;
   }
   .inbox-actions {
     grid-column: 2;
@@ -1173,6 +1167,15 @@ ul.menu {
     z-index: 3;
     .button {
       margin: 0;
+    }
+  }
+  .inbox-delete {
+    padding: 0 0.25rem;
+    font-size: 0.8125rem;
+    color: #b42318;
+    cursor: pointer;
+    &:hover, &:focus-visible {
+      text-decoration: underline;
     }
   }
   .box-link:focus-visible {
