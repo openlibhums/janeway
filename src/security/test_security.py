@@ -4572,6 +4572,78 @@ class TestSecurity(TestCase):
         )
         self.assertContains(response, "Journal Name")
 
+    def test_journal_settings_uses_remote_keyword_suggestions(self):
+        medicine = submission_models.Keyword.objects.create(word="Medicine")
+        arts = submission_models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine, arts)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "core_edit_settings_group",
+                kwargs={
+                    "display_group": "journal",
+                },
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            reverse("core_journal_keyword_suggestions"),
+        )
+        self.assertNotContains(response, '"Medicine"')
+        self.assertNotContains(response, '"Arts"')
+
+    def test_journal_keyword_suggestions_returns_matching_keywords(self):
+        medicine = submission_models.Keyword.objects.create(word="Medicine")
+        mediation = submission_models.Keyword.objects.create(word="Mediation")
+        arts = submission_models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine)
+        self.journal_two.keywords.add(arts)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse("core_journal_keyword_suggestions"),
+            {"q": "Me"},
+            SERVER_NAME="journal1.localhost",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Mediation"])
+
+    def test_journal_keyword_suggestions_returns_initial_results_for_empty_query(self):
+        medicine = submission_models.Keyword.objects.create(word="Medicine")
+        arts = submission_models.Keyword.objects.create(word="Arts")
+        self.journal_one.keywords.add(medicine)
+        self.journal_two.keywords.add(arts)
+
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse("core_journal_keyword_suggestions"),
+            SERVER_NAME="journal1.localhost",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), ["Arts"])
+
+    def test_journal_settings_page_requires_three_characters_before_searching(self):
+        self.client.force_login(self.editor)
+        response = self.client.get(
+            reverse(
+                "core_edit_settings_group",
+                kwargs={
+                    "display_group": "journal",
+                },
+            ),
+            SERVER_NAME="journal1.localhost",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "minLength: 3")
+        self.assertNotContains(response, "showAutocompleteOnFocus: true")
+
     def test_setting_is_removed_from_group(self):
         # set the journal_name setting to only be editable by journal managers.
         journal_manager_role = core_models.Role.objects.get(
