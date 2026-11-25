@@ -61,6 +61,25 @@
             "name": "general"
         },
         "setting": {
+            "description": "Text for the privacy link in the footer and on the registration page, for example 'Privacy Notice' or 'Privacy Statement'. If blank, the footer shows 'Privacy' and the registration page shows 'Privacy Policy'.",
+            "is_translatable": true,
+            "name": "privacy_link_text",
+            "pretty_name": "Privacy Link Text",
+            "type": "char"
+        },
+        "value": {
+            "default": ""
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
+            "name": "general"
+        },
+        "setting": {
             "description": "Name of the Journal's Publisher. Displayed throughout the site and metadata.",
             "is_translatable": true,
             "name": "publisher_name",
