@@ -33,6 +33,7 @@ from core import (
 from journal import models as journal_models
 from submission import forms as submission_forms, models as submission_models
 from repository import (
+    const as repository_const,
     copy_requests,
     forms,
     logic as repository_logic,
@@ -228,7 +229,7 @@ def repository_dashboard(request):
 
     search = request.GET.get("search", "").strip()
     tabs, active_tab, page = repository_logic.status_tabs(
-        request, preprints, repository_logic.AUTHOR_TABS, search
+        request, preprints, repository_const.AUTHOR_TABS, search
     )
     template = "admin/repository/dashboard.html"
     context = {
@@ -883,7 +884,7 @@ def preprints_manager(request):
     tabs, active_tab, page = repository_logic.status_tabs(
         request,
         repository_logic.get_manager_preprints(request, user_subject_pks),
-        repository_logic.MANAGER_TABS,
+        repository_const.MANAGER_TABS,
         search,
     )
     incomplete_preprints = models.Preprint.objects.filter(

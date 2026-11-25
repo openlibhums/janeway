@@ -4,7 +4,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
-from repository import models as rm
+from repository import logic as repository_logic, models as rm
 from repository.tests.test_frozen_authors import PreprintFrozenAuthorTestBase
 from utils.testing import helpers
 
@@ -84,6 +84,15 @@ class TestManagerPage(PreprintFrozenAuthorTestBase):
                 self.assertIn(target, page.object_list)
         page = self.get(search="no such title").context["page"]
         self.assertEqual(len(page.object_list), 0)
+
+    def test_published_and_unpublished_helpers(self):
+        self.client.force_login(self.manager)
+        request = self.get().wsgi_request
+        published = repository_logic.get_published_preprints(request, [])
+        unpublished = repository_logic.get_unpublished_preprints(request, [])
+        self.assertEqual(published.count(), 30)
+        self.assertFalse(unpublished.filter(date_published__isnull=False).exists())
+        self.assertFalse(set(published) & set(unpublished))
 
     def page_queries(self):
         """The page's repository queries; session and login ones vary."""

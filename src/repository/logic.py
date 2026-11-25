@@ -32,7 +32,7 @@ from utils import render_template, shared
 from utils.function_cache import cache
 from utils.orcid import COMPILED_ORCID_REGEX
 from events import logic as event_logic
-from repository import models
+from repository import const, models
 from submission import models as submission_models
 from metrics.logic import get_iso_country_code, iso_to_country_object
 
@@ -370,58 +370,18 @@ def get_manager_preprints(request, user_subject_pks):
     return preprints.filter(pk__in=user_subject_pks)
 
 
-TAB_DATE_LABELS = {
-    "date_started": _("Started"),
-    "date_submitted": _("Submitted"),
-    "date_accepted": _("Accepted"),
-    "date_published": _("Published"),
-    "date_declined": _("Declined"),
-}
+def get_unpublished_preprints(request, user_subject_pks):
+    return get_manager_preprints(request, user_subject_pks).filter(
+        date_published__isnull=True,
+        date_declined__isnull=True,
+        date_accepted__isnull=True,
+    )
 
-TAB_ICONS = {
-    "new": "fa-inbox",
-    "accepted": "fa-check",
-    "published": "fa-globe",
-    "rejected": "fa-ban",
-    "drafts": "fa-pencil",
-    "review": "fa-hourglass-half",
-}
 
-UNPUBLISHED = Q(date_published__isnull=True, date_declined__isnull=True)
-
-MANAGER_TABS = [
-    ("new", _("New"), UNPUBLISHED & Q(date_accepted__isnull=True), "date_submitted"),
-    (
-        "accepted",
-        _("Accepted"),
-        UNPUBLISHED & Q(date_accepted__isnull=False),
-        "date_accepted",
-    ),
-    ("published", _("Published"), Q(date_published__isnull=False), "date_published"),
-    (
-        "rejected",
-        _("Rejected"),
-        Q(date_published__isnull=True, date_declined__isnull=False),
-        "date_declined",
-    ),
-]
-
-AUTHOR_TABS = [
-    ("drafts", _("Drafts"), Q(date_submitted__isnull=True), "date_started"),
-    (
-        "review",
-        _("Under consideration"),
-        Q(date_submitted__isnull=False) & UNPUBLISHED,
-        "date_submitted",
-    ),
-    ("published", _("Published"), Q(date_published__isnull=False), "date_published"),
-    (
-        "rejected",
-        _("Rejected"),
-        Q(date_published__isnull=True, date_declined__isnull=False),
-        "date_declined",
-    ),
-]
+def get_published_preprints(request, user_subject_pks):
+    return get_manager_preprints(request, user_subject_pks).filter(
+        date_published__isnull=False,
+    )
 
 
 def status_tabs(request, preprints, tabs, search):
@@ -446,8 +406,8 @@ def status_tabs(request, preprints, tabs, search):
             {
                 "key": key,
                 "label": label,
-                "icon": TAB_ICONS.get(key, "fa-folder-o"),
-                "date_label": TAB_DATE_LABELS[date_field],
+                "icon": const.TAB_ICONS.get(key, "fa-folder-o"),
+                "date_label": const.TAB_DATE_LABELS[date_field],
                 "queryset": queryset,
                 "count": queryset.count(),
                 "query": urlencode(query),
