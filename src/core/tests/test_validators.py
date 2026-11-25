@@ -54,3 +54,23 @@ class TestValidators(TestCase):
         else:
             error = None
         self.assertIsNone(error)
+
+
+class TestValidateRorId(TestCase):
+    def test_valid_ror_ids(self):
+        for ror_id in ["018mejw64", "04pz7b180", "019w4f821", "05gq02987"]:
+            with self.subTest(ror_id=ror_id):
+                models.validate_ror_id(ror_id)
+
+    def test_invalid_ror_ids(self):
+        for ror_id in [
+            "0||||||12",  # pipe is not a valid character
+            "01|mejw64",
+            "018mejw65",  # wrong checksum
+            "118mejw64",  # must start with 0
+            "018mejw6",  # too short
+            "018mejl64",  # l is excluded from Crockford base32
+        ]:
+            with self.subTest(ror_id=ror_id):
+                with self.assertRaises(ValidationError):
+                    models.validate_ror_id(ror_id)

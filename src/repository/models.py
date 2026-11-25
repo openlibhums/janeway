@@ -2072,6 +2072,11 @@ class VersionQueue(models.Model):
         return "published_doi" in self.changed_sections
 
     @property
+    def file_changed(self):
+        """Approving replaces the file. Metadata corrections keep it."""
+        return bool(self.file_id) and self.update_type != "metadata_correction"
+
+    @property
     def authors_changed(self):
         return "authors" in self.changed_sections
 

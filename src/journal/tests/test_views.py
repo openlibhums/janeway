@@ -3,6 +3,8 @@ __author__ = "Open Library of Humanities"
 __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
+from unittest import mock
+
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -264,3 +266,163 @@ class ArticleDownloadAccessTests(TestCase):
             with self.subTest(url_name=url_name):
                 response = self.download(url_name, self.under_review.pk)
                 self.assertEqual(response.status_code, 403)
+
+
+@override_settings(URL_CONFIG="domain")
+class FileDeleteTests(TestCase):
+    """The file delete view asks for confirmation and only deletes on POST."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        cls.editor = helpers.create_editor(
+            cls.journal_one,
+            email="editor_file_delete@example.org",
+        )
+        cls.regular_user = helpers.create_regular_user()
+        cls.article = helpers.create_article(cls.journal_one)
+
+    def setUp(self):
+        self.file = core_models.File.objects.create(
+            article_id=self.article.pk,
+            label="Manuscript",
+            original_filename="manuscript.docx",
+            uuid_filename="file-delete-test.docx",
+            owner=self.editor,
+        )
+        self.delete_url = reverse(
+            "file_delete",
+            kwargs={"article_id": self.article.pk, "file_id": self.file.pk},
+        )
+        self.return_url = reverse(
+            "document_management", kwargs={"article_id": self.article.pk}
+        )
+        self.client.force_login(self.editor)
+
+        # No test file is written to disk, so stub out the unlinking of the
+        # stored copy. This keeps the tests off the real files directory and
+        # stops File.unlink_file printing "file_not_found".
+        patcher = mock.patch.object(core_models.File, "unlink_file")
+        self.unlink_file = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def get(self, url):
+        return self.client.get(url, SERVER_NAME=self.journal_one.domain)
+
+    def post(self, url):
+        return self.client.post(url, SERVER_NAME=self.journal_one.domain)
+
+    def file_exists(self):
+        return core_models.File.objects.filter(pk=self.file.pk).exists()
+
+    def test_get_shows_confirmation_and_does_not_delete(self):
+        response = self.get(f"{self.delete_url}?return={self.return_url}")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "admin/journal/file_delete.html")
+        self.assertContains(response, "manuscript.docx")
+        self.assertTrue(self.file_exists())
+        self.unlink_file.assert_not_called()
+
+    def test_get_without_return_does_not_error_or_delete(self):
+        response = self.get(self.delete_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.file_exists())
+
+    def cancel_link(self, href):
+        return f'<a href="{href}" class="button no-bottom-margin">'
+
+    def test_cancel_link_points_to_return_url(self):
+        response = self.get(f"{self.delete_url}?return={self.return_url}")
+        self.assertContains(response, self.cancel_link(self.return_url))
+
+    def test_cancel_link_falls_back_when_return_is_unsafe(self):
+        for unsafe in ("", "https://evil.example.com/", "//evil.example.com/"):
+            with self.subTest(return_url=unsafe):
+                response = self.get(f"{self.delete_url}?return={unsafe}")
+                self.assertContains(response, self.cancel_link(self.return_url))
+                # The page chrome echoes the request URL in hidden fields, so
+                # only check that nothing links off-site.
+                self.assertNotContains(response, 'href="https://evil.example.com')
+                self.assertNotContains(response, 'href="//evil.example.com')
+
+    def test_following_cancel_link_keeps_file(self):
+        response = self.get(f"{self.delete_url}?return={self.return_url}")
+        self.assertContains(response, self.cancel_link(self.return_url))
+        response = self.get(self.return_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.file_exists())
+        self.unlink_file.assert_not_called()
+
+    def test_post_deletes_file_and_redirects_to_return(self):
+        response = self.post(f"{self.delete_url}?return={self.return_url}")
+        self.assertRedirects(response, self.return_url, fetch_redirect_response=False)
+        self.assertFalse(self.file_exists())
+        self.unlink_file.assert_called_once()
+
+    def test_post_without_return_falls_back_to_document_management(self):
+        response = self.post(self.delete_url)
+        self.assertRedirects(response, self.return_url, fetch_redirect_response=False)
+        self.assertFalse(self.file_exists())
+
+    def test_unsafe_return_url_is_ignored(self):
+        for unsafe in ("https://evil.example.com/", "//evil.example.com/"):
+            with self.subTest(return_url=unsafe):
+                file = core_models.File.objects.create(
+                    article_id=self.article.pk,
+                    original_filename="other.docx",
+                    uuid_filename="file-delete-other.docx",
+                    owner=self.editor,
+                )
+                url = reverse(
+                    "file_delete",
+                    kwargs={"article_id": self.article.pk, "file_id": file.pk},
+                )
+                response = self.post(f"{url}?return={unsafe}")
+                self.assertRedirects(
+                    response, self.return_url, fetch_redirect_response=False
+                )
+
+    def test_post_writes_log_entry(self):
+        file_pk = self.file.pk
+        self.post(f"{self.delete_url}?return={self.return_url}")
+        entry = utils_models.LogEntry.objects.get(types="File Deleted")
+        self.assertEqual(entry.actor, self.editor)
+        self.assertEqual(entry.target, self.article)
+        self.assertIn(str(file_pk), entry.description)
+        self.assertIn("manuscript.docx", entry.description)
+        self.assertIn("file-delete-test.docx", entry.description)
+        self.assertIn(self.editor.username, entry.description)
+
+    def test_get_writes_no_log_entry(self):
+        self.get(self.delete_url)
+        self.assertFalse(
+            utils_models.LogEntry.objects.filter(types="File Deleted").exists()
+        )
+
+    def test_user_without_permission_cannot_delete(self):
+        self.client.force_login(self.regular_user)
+        for method in (self.get, self.post):
+            with self.subTest(method=method.__name__):
+                response = method(self.delete_url)
+                self.assertNotEqual(response.status_code, 200)
+                self.assertTrue(self.file_exists())
+        self.unlink_file.assert_not_called()
+        self.assertFalse(
+            utils_models.LogEntry.objects.filter(types="File Deleted").exists()
+        )
+
+    def test_replace_page_delete_param_redirects_to_confirmation(self):
+        url = reverse(
+            "article_file_replace",
+            kwargs={
+                "identifier_type": "id",
+                "identifier": self.article.pk,
+                "file_id": self.file.pk,
+            },
+        )
+        response = self.get(f"{url}?delete=1")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(self.delete_url))
+        self.assertIn("return=", response.url)
+        self.assertTrue(self.file_exists())
