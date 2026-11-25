@@ -7,7 +7,7 @@ FORCE_BUILTIN_XSL = False
 SECRET_KEY = "uxprsdhk^gzd-r=_287byolxn)$k6tsd8_cepl^s^tms2w1qrv"
 
 # This is the default redirect if no other sites are found.
-DEFAULT_HOST = "https://www.example.org"
+DEFAULT_HOST = "http://janeway.lndo.site"
 EMAIL_BACKEND = (
     os.environ.get(
         "JANEWAY_EMAIL_BACKEND",
@@ -15,7 +15,7 @@ EMAIL_BACKEND = (
     or "django.core.mail.backends.console.EmailBackend"
 )
 
-URL_CONFIG = "path"  # path or domain
+URL_CONFIG = "domain"  # path or domain
 
 MIDDLEWARE = (
     "utils.middleware.TimeMonitoring",
