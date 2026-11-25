@@ -118,6 +118,69 @@ class TestJournalSite(TestCase):
         self.assertContains(response, "Volume 4")
         self.assertContains(response, self.article_title)
 
+    def test_issue_sections_context_is_not_paginated(self):
+        first_section = self.published_article.section
+        second_section = helpers.create_section(
+            self.journal,
+            name="Review",
+            plural="Reviews",
+            sequence=999,
+        )
+        unpublished_section = helpers.create_section(
+            self.journal,
+            name="Draft",
+            plural="Drafts",
+            sequence=1000,
+        )
+
+        for num in range(50):
+            article = helpers.create_article(
+                journal=self.journal,
+                title=f"Extra issue article {num}",
+                stage="Published",
+                section=first_section,
+                date_published=timezone.now(),
+            )
+            self.issue.articles.add(article)
+
+        second_section_article = helpers.create_article(
+            journal=self.journal,
+            title="Second section article",
+            stage="Published",
+            section=second_section,
+            date_published=timezone.now(),
+        )
+        self.issue.articles.add(second_section_article)
+
+        unpublished_article = helpers.create_article(
+            journal=self.journal,
+            title="Unpublished section article",
+            stage="Unassigned",
+            section=unpublished_section,
+        )
+        self.issue.articles.add(unpublished_article)
+
+        response = self.client.get(
+            reverse(
+                "journal_issue",
+                kwargs={
+                    "issue_id": self.issue.pk,
+                },
+            ),
+            SERVER_NAME=self.journal_domain,
+        )
+
+        article_page_sections = {
+            article.section for article in response.context["articles"]
+        }
+        self.assertIn(first_section, article_page_sections)
+        self.assertNotIn(second_section, article_page_sections)
+
+        self.assertEqual(
+            response.context["issue_sections"],
+            [first_section, second_section],
+        )
+
     def test_become_reviewer_page(self):
         self.client.force_login(
             self.new_user,
