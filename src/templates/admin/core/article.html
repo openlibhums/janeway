@@ -1,5 +1,5 @@
 {% extends "admin/core/base.html" %}
-{% load hooks %}
+{% load hooks i18n %}
 
 {% block title %}Article {{ article.pk }} Information{% endblock %}
 {% block breadcrumbs %}
@@ -18,6 +18,34 @@
             {% hook 'edit_article' %}
         {% endif %}
         <div class="content">
+            <table class="scroll">
+                <tr>
+                    <th>{% trans "Current Stage" %}</th>
+                    <td>{{ article.get_stage_display }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Submitted" %}</th>
+                    <td>{{ article.date_submitted|default:_("Not yet submitted") }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Section" %}</th>
+                    <td>{{ article.section.name|default:_("Not set") }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Correspondence Author" %}</th>
+                    <td>
+                        {% if article.correspondence_author %}
+                            {{ article.correspondence_author.full_name|default:article.correspondence_author.email }}
+                        {% else %}
+                            {% trans "Not set" %}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Abstract" %}</th>
+                    <td>{{ article.abstract|safe|default:_("No abstract provided") }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 
