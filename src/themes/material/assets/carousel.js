@@ -85,6 +85,7 @@
                 }
                 done = true;
                 finishMove = null;
+                window.clearTimeout(fallback);
                 track.classList.remove("is-moving");
                 outgoing.classList.remove("is-leaving");
                 outgoing.style.transform = "";
@@ -98,7 +99,7 @@
             }
             incoming.addEventListener("transitionend", onEnd);
             // transitionend can be skipped, e.g. in a hidden tab.
-            window.setTimeout(finishMove, 1000);
+            var fallback = window.setTimeout(finishMove, 1000);
             schedule();
         }
 
