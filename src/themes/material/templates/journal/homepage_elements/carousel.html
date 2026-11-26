@@ -1,5 +1,6 @@
 {% load i18n %}
 
+{% if carousel_items %}
 <div class="row m12">
     <section class="carousel-wrapper" data-carousel data-carousel-delay="8000"
              aria-roledescription="{% trans 'carousel' %}" aria-label="{% trans 'Carousel' %}">
@@ -29,3 +30,10 @@
         </div>
     </section>
 </div>
+{% elif settings.DEBUG %}
+<div class="row m12">
+    <div class="card-panel">
+        {% trans 'Debug: the carousel has no items to display, so it is hidden. This message only shows when DEBUG is on.' %}
+    </div>
+</div>
+{% endif %}

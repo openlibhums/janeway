@@ -98,11 +98,7 @@
             }
             incoming.addEventListener("transitionend", onEnd);
             // transitionend can be skipped, e.g. in a hidden tab.
-            window.setTimeout(function () {
-                if (finishMove) {
-                    finishMove();
-                }
-            }, 1000);
+            window.setTimeout(finishMove, 1000);
             schedule();
         }
 
