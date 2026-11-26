@@ -4,13 +4,12 @@
 <div class="row m12">
     <section class="carousel-wrapper" data-carousel data-carousel-delay="8000"
              aria-roledescription="{% trans 'carousel' %}" aria-label="{% trans 'Carousel' %}">
+        <div class="material-carousel" data-carousel-track>
+            {% for carousel_item in carousel_items %}
+                {% include "journal/homepage_elements/carousel_element.html" with slide_number=forloop.counter total_slides=carousel_items|length first=forloop.first %}
+            {% endfor %}
+        </div>
         {% if carousel_items|length > 1 %}
-            <button type="button" class="carousel-button carousel-toggle" data-carousel-toggle
-                    aria-label="{% trans 'Pause carousel' %}"
-                    data-label-pause="{% trans 'Pause carousel' %}"
-                    data-label-play="{% trans 'Play carousel' %}">
-                <i class="fa fa-pause" aria-hidden="true"></i>
-            </button>
             <button type="button" class="carousel-button carousel-prev" data-carousel-prev
                     aria-label="{% trans 'Previous slide' %}">
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
@@ -19,15 +18,14 @@
                     aria-label="{% trans 'Next slide' %}">
                 <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </button>
-            <p class="carousel-counter" aria-hidden="true">
-                <span data-carousel-current>1</span> / {{ carousel_items|length }}
-            </p>
+            <button type="button" class="carousel-button carousel-toggle" data-carousel-toggle
+                    aria-label="{% trans 'Pause carousel' %}"
+                    data-label-pause="{% trans 'Pause carousel' %}"
+                    data-label-play="{% trans 'Play carousel' %}">
+                <i class="fa fa-pause" aria-hidden="true"></i>
+            </button>
+            <p class="sr-only" aria-live="polite" aria-atomic="true" data-carousel-status></p>
         {% endif %}
-        <div class="material-carousel" data-carousel-track>
-            {% for carousel_item in carousel_items %}
-                {% include "journal/homepage_elements/carousel_element.html" with slide_number=forloop.counter total_slides=carousel_items|length first=forloop.first %}
-            {% endfor %}
-        </div>
     </section>
 </div>
 {% elif settings.DEBUG %}

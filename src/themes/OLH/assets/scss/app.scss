@@ -2139,17 +2139,12 @@ section.invisible-landmark{
   }
 }
 
-.carousel-button,
-.carousel-counter {
+.carousel-button {
   position: absolute;
-  // Above the slide's full-bleed .box-link (z-index 11).
   z-index: 12;
   border: 2px solid #fefefe;
   background-color: rgba(0, 0, 0, 0.75);
   color: #fefefe;
-}
-
-.carousel-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2162,11 +2157,11 @@ section.invisible-landmark{
   line-height: 1;
   cursor: pointer;
 
-  &:hover {
-    background-color: #000;
-  }
-
+  // The dark border keeps the theme's light outline visible against the
+  // inverted fill.
+  &:hover,
   &:focus-visible {
+    border-color: #000;
     background-color: #fefefe;
     color: #000;
   }
@@ -2191,14 +2186,10 @@ section.invisible-landmark{
   right: 1rem;
 }
 
-.carousel-counter {
-  top: 1rem;
-  left: 1rem;
-  margin: 0;
-  padding: 0.2rem 0.75rem;
-  border-radius: $global-radius;
+// Plain caption text, so it doesn't look like one of the buttons.
+.olh-banner-heading .carousel-counter {
+  margin-bottom: 0.25rem;
   font-size: 0.875rem;
-  line-height: 1.5;
 }
 
 // Let the carousel grow to fit its caption (WCAG 1.4.4, 1.4.10). Orbit sets
@@ -2324,27 +2315,6 @@ input[type="submit"]:focus-visible {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
-}
-
-/* The carousel slide link is a full-bleed overlay, so a ring drawn
-   outside its box is clipped by the viewport on flush edges. Draw the
-   pair inset instead: a dark inner-shadow band with the light outline
-   overlapping its inner half, so both bands sit on the slide image.
-   The generic "li a" negative-margin workaround above displaces this
-   absolutely positioned link 4px off its slide, splitting the ring in
-   two, so reset it here. */
-.orbit .box-link {
-    margin: 0;
-    padding: 0;
-}
-
-.orbit .box-link:focus,
-.orbit .box-link:focus-visible {
-    outline: 2px var(--focus-light) solid;
-    outline-offset: calc(-2px - var(--focus-ring-size));
-    box-shadow:
-        inset 0 0 0 var(--focus-ring-size) var(--focus-dark),
-        inset 0 0 0 calc(var(--focus-ring-size) + 4px) var(--focus-light);
 }
 
 /* The reading options bar sits directly below the main menu and would

@@ -9,8 +9,11 @@
     {# Not pk: an article and a news item can share one. #}
     <div class="material-banner-heading" tabindex="0" role="region" aria-labelledby="carousel-title-{{ slide_number }}">
       <div class="carousel-text-wrapper">
+        {% if total_slides > 1 %}
+          <p class="carousel-counter" aria-hidden="true">{% blocktrans %}Slide {{ slide_number }} of {{ total_slides }}{% endblocktrans %}</p>
+        {% endif %}
         <a href="{{ carousel_item.url }}">
-            <h2 id="carousel-title-{{ slide_number }}">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
+            <h2 id="carousel-title-{{ slide_number }}" data-carousel-title>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h2>
           {% if carousel_item.carousel_subtitle %}
             <p>{{ carousel_item.carousel_subtitle|safe }}</p>
           {% endif %}

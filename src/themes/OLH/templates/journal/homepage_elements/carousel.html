@@ -23,30 +23,27 @@
                                 aria-label="{% trans 'Next slide' %}">
                             <i class="fa fa-chevron-right" aria-hidden="true"></i>
                         </button>
-                        <p class="carousel-counter" aria-hidden="true">
-                            <span data-carousel-current>1</span> / {{ carousel_items|length }}
-                        </p>
+                        <p class="sr-only" aria-live="polite" aria-atomic="true" data-carousel-status></p>
                     {% endif %}
                     {# Not ul/li: role="group" isn't allowed on li. #}
                     <div class="orbit-container orbit-carousel">
                         {% for carousel_item in carousel_items %}
                           <div class="orbit-slide" role="group" aria-roledescription="{% trans 'slide' %}"
                               aria-label="{% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}{{ slide_number }} of {{ total_slides }}{% endblocktrans %}">
-                            <a href="{{ carousel_item.url }}" class="box-link"
-                                aria-labelledby="carousel-{{ forloop.counter }}-title"
-                                aria-describedby="carousel-{{ forloop.counter }}-subtitle{% if request.site_type.code == 'press' and carousel_item.stage %} carousel-{{ forloop.counter }}-details{% endif %}">
-                            </a>
                               <div class="olh-banner">
                                 <img class="olh-banner-image"
                                   src="{{ carousel_item.best_large_image_url }}"
                                   alt="{{ carousel_item.best_large_image_alt_text|striptags }}"
                                   aria-hidden="true">
                                 <div class="overlay"></div>
-                                <figcaption class="olh-banner-heading" aria-hidden="true">
-                                    <p id="carousel-{{ forloop.counter }}-subtitle">{{ carousel_item.carousel_subtitle|safe }}</p>
-                                    <h3 id="carousel-{{ forloop.counter }}-title">{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</h3>
+                                <figcaption class="olh-banner-heading">
+                                    {% if carousel_items|length > 1 %}
+                                        <p class="carousel-counter" aria-hidden="true">{% blocktrans with slide_number=forloop.counter total_slides=carousel_items|length %}Slide {{ slide_number }} of {{ total_slides }}{% endblocktrans %}</p>
+                                    {% endif %}
+                                    <p>{{ carousel_item.carousel_subtitle|safe }}</p>
+                                    <h3><a href="{{ carousel_item.url }}" data-carousel-title>{{ carousel_item.carousel_title|truncatechars_html:200|safe }}</a></h3>
                                     {% if request.site_type.code == 'press' and carousel_item.stage %}
-                                        <p id="carousel-{{ forloop.counter }}-details">{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
+                                        <p>{% trans 'Published in: ' %} {{ carousel_item.journal.name }}</p>
                                     {% endif %}
                                 </figcaption>
                               </div>

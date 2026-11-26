@@ -14,7 +14,7 @@ $(document).ready(function () {
 
         var $container = $orbit.find(".orbit-container");
         var $slides = $orbit.find(".orbit-slide");
-        var $current = $root.find("[data-carousel-current]");
+        var $status = $root.find("[data-carousel-status]");
         var $toggleIcon = $toggle.find(".fa");
         var delay = parseInt($root.data("carousel-delay"), 10) || 7000;
         var reduceMotion = window.matchMedia &&
@@ -27,6 +27,7 @@ $(document).ready(function () {
         var hovered = false;
         var focused = false;
         var timer = null;
+        var announce = false;
 
         function schedule() {
             window.clearTimeout(timer);
@@ -43,12 +44,16 @@ $(document).ready(function () {
             $toggleIcon.toggleClass("fa-pause", playing).toggleClass("fa-play", !playing);
         }
 
-        // Orbit re-adds aria-live="polite" to each new slide; drop it while
-        // rotating so every slide isn't announced.
+        // Orbit re-adds aria-live="polite" to each new slide. Drop it: the
+        // status region announces moves the reader asked for, and autoplay
+        // stays silent.
         function quietSlides() {
-            if (playing) {
-                $slides.filter("[aria-live]").removeAttr("aria-live");
-            }
+            $slides.filter("[aria-live]").removeAttr("aria-live");
+        }
+
+        function move(forward) {
+            announce = true;
+            orbit.changeSlide(forward);
         }
         if (window.MutationObserver) {
             new MutationObserver(quietSlides).observe($orbit[0], {
@@ -59,21 +64,26 @@ $(document).ready(function () {
         }
 
         $orbit.on("slidechange.zf.orbit", function (event, $newSlide) {
-            $current.text($slides.index($newSlide) + 1);
             quietSlides();
+            if (announce) {
+                announce = false;
+                $status.text(
+                    $newSlide.find(".carousel-counter").text().trim() + ": " +
+                    $newSlide.find("[data-carousel-title]").text().trim()
+                );
+            }
             schedule();
         });
 
         $root.find("[data-carousel-prev]").on("click", function () {
-            orbit.changeSlide(false);
+            move(false);
         });
         $root.find("[data-carousel-next]").on("click", function () {
-            orbit.changeSlide(true);
+            move(true);
         });
         $toggle.on("click", function () {
             playing = !playing;
             render();
-            quietSlides();
             schedule();
         });
 
@@ -92,7 +102,7 @@ $(document).ready(function () {
             var dy = event.changedTouches[0].clientY - startY;
             startX = null;
             if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-                orbit.changeSlide(dx < 0);
+                move(dx < 0);
             }
         });
 

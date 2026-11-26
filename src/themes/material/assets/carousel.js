@@ -13,7 +13,7 @@
             return;
         }
         var toggleIcon = toggle.querySelector(".fa");
-        var current = root.querySelector("[data-carousel-current]");
+        var status = root.querySelector("[data-carousel-status]");
         var delay = parseInt(root.getAttribute("data-carousel-delay"), 10) || 8000;
         var reduceMotion = window.matchMedia &&
             window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -47,9 +47,21 @@
                     slide.setAttribute("aria-hidden", "true");
                 }
             });
-            if (current) {
-                current.textContent = newIndex + 1;
-            }
+        }
+
+        // Only for moves the reader asked for; autoplay stays silent.
+        function announce() {
+            var slide = slides[index];
+            var counter = slide.querySelector(".carousel-counter");
+            var title = slide.querySelector("[data-carousel-title]");
+            status.textContent = [counter, title].filter(Boolean).map(function (el) {
+                return el.textContent.trim();
+            }).join(": ") || slide.getAttribute("aria-label");
+        }
+
+        function step(direction) {
+            go(index + direction, direction);
+            announce();
         }
 
         // direction: 1 brings the new slide in from the right, -1 from the left.
@@ -104,7 +116,6 @@
         }
 
         function render() {
-            track.setAttribute("aria-live", playing ? "off" : "polite");
             toggle.setAttribute(
                 "aria-label",
                 toggle.getAttribute(playing ? "data-label-pause" : "data-label-play")
@@ -119,10 +130,10 @@
             schedule();
         });
         root.querySelector("[data-carousel-prev]").addEventListener("click", function () {
-            go(index - 1, -1);
+            step(-1);
         });
         root.querySelector("[data-carousel-next]").addEventListener("click", function () {
-            go(index + 1, 1);
+            step(1);
         });
 
         var startX = null;
@@ -139,11 +150,7 @@
             var dy = event.changedTouches[0].clientY - startY;
             startX = null;
             if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
-                if (dx < 0) {
-                    go(index + 1, 1);
-                } else {
-                    go(index - 1, -1);
-                }
+                step(dx < 0 ? 1 : -1);
             }
         });
 
