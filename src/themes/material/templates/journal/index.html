@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load static %}
 {% load truncate %}
 
 {% block body %}
@@ -12,14 +13,6 @@
 {% endblock body %}
 
 {% block js %}
-    <script>
-        $(document).ready(function () {
-            $('.carousel.carousel-slider').carousel({fullWidth: true});
-        })
-        $('.carousel').carousel();
-        setInterval(function () {
-            $('.carousel').carousel('next');
-        }, 8000);
-    </script>
+    <script src="{% static 'material/carousel.js' %}"></script>
 
 {% endblock %}

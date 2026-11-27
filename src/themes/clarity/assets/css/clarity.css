@@ -2025,10 +2025,15 @@ textarea:focus,
   padding-left: 20px;
 }
 
-.article-menu ul.article-authors-full,
+.article-menu ul.list-no-bullet,
 .article-menu ul.list-inline {
   list-style: none;
   padding-left: 0;
+}
+
+/* .list-no-bullet zeroes the margin that spaces sidebar sections */
+.article-menu > ul.list-no-bullet {
+  margin-bottom: 1rem;
 }
 
 .article-menu ul li {

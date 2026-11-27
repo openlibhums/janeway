@@ -233,10 +233,10 @@ class FullSweepFixTests(SimpleTestCase):
         carousel = helpers.read_theme_asset(
             "OLH", "templates/journal/homepage_elements/carousel.html"
         )
-        self.assertIn(
-            '<nav class="orbit-bullets" aria-label="{% trans \'Carousel slides\' %}">',
-            carousel,
-        )
+        self.assertNotIn("<nav", carousel)
+        for label in ["Pause carousel", "Previous slide", "Next slide"]:
+            with self.subTest(label=label):
+                self.assertIn(f"aria-label=\"{{% trans '{label}' %}}\"", carousel)
 
 
 class NonTextContrastCssTests(SimpleTestCase):

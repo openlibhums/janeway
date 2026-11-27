@@ -1174,17 +1174,18 @@ div.caption span.label {
         position: relative;
         margin-bottom: 10px;
         line-height: 1.3em;
-
-        &:before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: -56px;
-          width: 30px;
-          height: 2px;
-          background: $light-gray;
-        }
       }
+    }
+    // Only inside .section: the tick sits in its 40px padding and would
+    // otherwise cover the content column (e.g. the issue archive).
+    .section ul li:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -56px;
+      width: 30px;
+      height: 2px;
+      background: $light-gray;
     }
   }
 }
@@ -1987,8 +1988,14 @@ button.list-group-item-danger.active:focus {
   padding-left: 0;
   margin: 0;
   white-space: normal;
+  margin-bottom: 1rem;
 }
 .keywords-list li{
+  display: inline-block;
+}
+/* Firefox sizes the li without the link's focus-ring padding, which made
+   keywords wrap mid-word. */
+.keywords-list li a {
   display: inline-block;
 }
 
@@ -2119,38 +2126,70 @@ section.invisible-landmark{
 }
 
 // carousel style overrides
-// Bullets are a fixed 24px (WCAG 2.5.8) so they don't grow with the text
-// size and wrap onto a second row. Padding rather than margin keeps the
-// space inside the carousel background.
-.orbit-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  margin: 0;
-  padding: 12px 0;
+.orbit {
+  position: relative;
+  --carousel-image-middle: 100px;
 
-  button {
-    flex: 0 0 24px;
-    width: 24px;
-    height: 24px;
-    margin: 0;
-    // Every bullet is a solid disc with a border of the same colour. The
-    // current one is a ring (transparent centre), so it is distinguishable
-    // without relying on colour contrast, and the size doesn't change.
-    box-sizing: border-box;
-    border: 7px solid $dark-gray;
-    background-color: $dark-gray;
-
-    &:hover {
-      background-color: $dark-gray;
-    }
-
-    &.is-active,
-    &.is-active:hover {
-      background-color: transparent;
-    }
+  @media (min-width: 640px) {
+    --carousel-image-middle: 216px;
   }
+
+  @media (min-width: 1024px) {
+    --carousel-image-middle: 270px;
+  }
+}
+
+.carousel-button {
+  position: absolute;
+  z-index: 12;
+  border: 2px solid #fefefe;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fefefe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-radius: $global-radius;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+
+  // The dark border keeps the theme's light outline visible against the
+  // inverted fill.
+  &:hover,
+  &:focus-visible {
+    border-color: #000;
+    background-color: #fefefe;
+    color: #000;
+  }
+}
+
+.carousel-prev,
+.carousel-next {
+  top: var(--carousel-image-middle);
+  transform: translateY(-50%);
+}
+
+.carousel-prev {
+  left: 1rem;
+}
+
+.carousel-next {
+  right: 1rem;
+}
+
+.carousel-toggle {
+  top: 1rem;
+  right: 1rem;
+}
+
+// Plain caption text, so it doesn't look like one of the buttons.
+.olh-banner-heading .carousel-counter {
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
 }
 
 // Let the carousel grow to fit its caption (WCAG 1.4.4, 1.4.10). Orbit sets
@@ -2181,14 +2220,21 @@ section.invisible-landmark{
     }
   }
 
+  // Matches the full-width article hero (.large-12 .olh-banner).
   .olh-banner-image {
     align-self: stretch;
     width: 100%;
-    height: auto;
-    min-height: 100%;
-    max-height: 360px;
+    height: 360px;
     object-fit: cover;
     object-position: top;
+
+    @media (min-width: 640px) {
+      height: 432px;
+    }
+
+    @media (min-width: 1024px) {
+      height: 540px;
+    }
   }
 
   .olh-banner-heading {
@@ -2200,7 +2246,7 @@ section.invisible-landmark{
   // On small screens the caption sits below the image.
   @include breakpoint(small only) {
     .olh-banner-image {
-      max-height: 200px;
+      height: 200px;
     }
 
     .olh-banner .olh-banner-heading {
@@ -2269,27 +2315,6 @@ input[type="submit"]:focus-visible {
     outline: 2px var(--focus-light) solid;
     outline-offset: 0;
     box-shadow: 0 0 0 var(--focus-ring-size) var(--focus-dark);
-}
-
-/* The carousel slide link is a full-bleed overlay, so a ring drawn
-   outside its box is clipped by the viewport on flush edges. Draw the
-   pair inset instead: a dark inner-shadow band with the light outline
-   overlapping its inner half, so both bands sit on the slide image.
-   The generic "li a" negative-margin workaround above displaces this
-   absolutely positioned link 4px off its slide, splitting the ring in
-   two, so reset it here. */
-.orbit .box-link {
-    margin: 0;
-    padding: 0;
-}
-
-.orbit .box-link:focus,
-.orbit .box-link:focus-visible {
-    outline: 2px var(--focus-light) solid;
-    outline-offset: calc(-2px - var(--focus-ring-size));
-    box-shadow:
-        inset 0 0 0 var(--focus-ring-size) var(--focus-dark),
-        inset 0 0 0 calc(var(--focus-ring-size) + 4px) var(--focus-light);
 }
 
 /* The reading options bar sits directly below the main menu and would
