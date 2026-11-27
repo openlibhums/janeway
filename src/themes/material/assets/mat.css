@@ -1582,13 +1582,6 @@ p + .btn-background {
     max-height: min(648px, 100%);
   }
 }
-/* Carousel items should display text at the top because Materialize JS
- * sets the carousel height for reasons of its own,
- * which can have the effect of hiding the heading. */
-.carousel-item.material-banner .material-banner-heading {
-  bottom: unset;
-  top: 0;
-}
 /* Partial-width banners should be shorter */
 .m4 .material-banner,
 .l4 .material-banner {
@@ -1627,7 +1620,7 @@ p + .btn-background {
 }
 
 /* Homepage carousel. Heights match the article hero, except phones keep
-   400px so the top caption still fits. */
+   400px so the caption still fits. */
 .carousel-wrapper {
   position: relative;
   --carousel-height: 400px;
@@ -1688,8 +1681,10 @@ p + .btn-background {
   object-fit: cover;
   object-position: top;
 }
+/* Phones keep the buttons in a row along the bottom, under the caption. */
 .carousel-wrapper .material-banner-heading {
-  max-height: calc(100% - 4.75rem);
+  bottom: calc(1rem + 44px);
+  max-height: calc(100% - 1rem - 44px);
 }
 
 .carousel-button {
@@ -1755,6 +1750,8 @@ p + .btn-background {
     right: 1rem;
   }
   .carousel-wrapper .material-banner-heading {
+    bottom: 0;
+    max-height: 100%;
     padding-inline: calc(1rem + 44px + 1rem);
   }
 }

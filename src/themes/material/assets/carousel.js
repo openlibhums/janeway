@@ -127,6 +127,10 @@
         toggle.addEventListener("click", function () {
             playing = !playing;
             render();
+            // The label names the next action, so confirm the new state.
+            status.textContent = toggle.getAttribute(
+                playing ? "data-status-playing" : "data-status-paused"
+            );
             schedule();
         });
         root.querySelector("[data-carousel-prev]").addEventListener("click", function () {

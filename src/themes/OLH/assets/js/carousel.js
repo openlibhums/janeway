@@ -84,6 +84,8 @@ $(document).ready(function () {
         $toggle.on("click", function () {
             playing = !playing;
             render();
+            // The label names the next action, so confirm the new state.
+            $status.text($toggle.data(playing ? "status-playing" : "status-paused"));
             schedule();
         });
 
