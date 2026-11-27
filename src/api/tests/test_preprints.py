@@ -10,11 +10,15 @@ will shift those PKs and cause failures.
 import mock
 from uuid import uuid4
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.test import APIClient
+
+from api import views
 
 from identifiers import forms as identifier_forms
 from identifiers import models as identifier_models
@@ -522,3 +526,90 @@ class TestPreprintFilesScoping(TestCase):
         }
         self.assertNotIn(self.preprint_other.pk, preprint_ids)
         self.api_client.force_authenticate(user=None)
+
+
+PREPRINT_SCOPE_DOMAIN = "preprint-scope-test.domain.com"
+PREPRINT_SCOPE_DOMAIN_2 = "preprint-scope-test-2.domain.com"
+
+
+@override_settings(URL_CONFIG="domain")
+class TestPreprintAPIScoping(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.press.save()
+        cls.manager = helpers.create_user("scope.manager@test.com")
+        cls.repo, cls.subject = helpers.create_repository(
+            cls.press, [cls.manager], [], domain=PREPRINT_SCOPE_DOMAIN
+        )
+        cls.other_repo = repository_models.Repository.objects.create(
+            press=cls.press,
+            name="Other Scope Repository",
+            short_name="otherscoperepo",
+            object_name="Preprint",
+            object_name_plural="Preprints",
+            publisher="Test Publisher",
+            live=True,
+            domain=PREPRINT_SCOPE_DOMAIN_2,
+        )
+        cls.owner = helpers.create_user("scope.owner@test.com")
+        cls.other_user = helpers.create_user("scope.other@test.com")
+
+    def setUp(self):
+        self.api_client = APIClient()
+
+    def test_user_cannot_add_file_to_another_users_preprint(self):
+        preprint = repository_models.Preprint.objects.create(
+            repository=self.repo,
+            owner=self.other_user,
+            stage=repository_models.STAGE_PREPRINT_UNSUBMITTED,
+            title="Someone else's preprint",
+        )
+        self.api_client.force_authenticate(user=self.owner)
+        response = self.api_client.post(
+            reverse("repository_preprint_files-list"),
+            {
+                "preprint": preprint.pk,
+                "original_filename": "upload.pdf",
+                "mime_type": "application/pdf",
+                "file": SimpleUploadedFile("upload.pdf", b"%PDF-1.4"),
+            },
+            format="multipart",
+            SERVER_NAME=PREPRINT_SCOPE_DOMAIN,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(preprint.preprintfile_set.exists())
+
+    def test_owner_cannot_delete_file_from_submitted_preprint(self):
+        preprint = helpers.create_preprint(self.repo, self.owner, self.subject)
+        preprint_file = preprint.preprintfile_set.first()
+        view = views.PreprintFiles()
+        view.request = mock.Mock(user=self.owner, repository=self.repo)
+        with self.assertRaises(PermissionDenied):
+            view.perform_destroy(preprint_file)
+        self.assertTrue(
+            repository_models.PreprintFile.objects.filter(pk=preprint_file.pk).exists()
+        )
+
+    def test_manager_cannot_create_preprint_in_another_repository(self):
+        self.api_client.force_authenticate(user=self.manager)
+        response = self.api_client.post(
+            reverse("repository_preprints-list"),
+            {
+                "title": "Manager Preprint",
+                "abstract": "Abstract",
+                "owner": self.owner.pk,
+                "repository": self.other_repo.pk,
+                "stage": repository_models.STAGE_PREPRINT_REVIEW,
+                "authors": [],
+                "keywords": [],
+                "subject": [],
+                "additional_field_answers": [],
+                "supplementary_files": [],
+            },
+            format="json",
+            SERVER_NAME=PREPRINT_SCOPE_DOMAIN,
+        )
+        self.assertEqual(response.status_code, 201)
+        preprint = repository_models.Preprint.objects.get(pk=response.data["pk"])
+        self.assertEqual(preprint.repository, self.repo)

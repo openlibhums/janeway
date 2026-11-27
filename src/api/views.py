@@ -204,6 +204,12 @@ class PreprintViewSet(viewsets.ModelViewSet):
             return serializers.PreprintCreateSerializer
         return serializers.PreprintSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(repository=self.request.repository)
+
+    def perform_update(self, serializer):
+        serializer.save(repository=self.request.repository)
+
     def get_queryset(self):
         preprints = repository_models.Preprint.objects.filter(
             repository=self.request.repository,
@@ -362,6 +368,11 @@ class PreprintFiles(viewsets.ModelViewSet):
         if self.request.method in ["POST"]:
             return serializers.PreprintFileCreateSerializer
         return serializers.PreprintFileSerializer
+
+    def perform_destroy(self, instance):
+        if instance.preprint.date_submitted:
+            raise PermissionDenied("Files on submitted preprints cannot be deleted.")
+        instance.delete()
 
     def get_queryset(self):
         if self.request.repository:
