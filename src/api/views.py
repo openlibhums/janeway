@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from rest_framework import viewsets, generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 
@@ -40,6 +41,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     permission_classes = [api_permissions.IsEditor | api_permissions.IsSectionEditor]
     serializer_class = serializers.AccountSerializer
+    http_method_names = ["get"]
 
     def get_queryset(self):
         """
@@ -67,8 +69,19 @@ class AccountRoleViewSet(viewsets.ModelViewSet):
     API endpoint that allows user roles to be viewed or edited.
     """
 
-    queryset = core_models.AccountRole.objects.filter()
     serializer_class = serializers.AccountRoleSerializer
+    http_method_names = ["get", "post", "delete"]
+
+    def get_queryset(self):
+        account_roles = core_models.AccountRole.objects.all()
+        if self.request.user.is_staff:
+            return account_roles
+        return account_roles.filter(journal=self.request.journal)
+
+    def perform_destroy(self, instance):
+        if instance.role.slug == "journal-manager" and not self.request.user.is_staff:
+            raise PermissionDenied("You cannot remove that role via the API.")
+        instance.delete()
 
 
 class JournalViewSet(viewsets.ModelViewSet):
