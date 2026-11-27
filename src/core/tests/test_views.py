@@ -2391,3 +2391,99 @@ class PublicProfileViewTests(TestCase):
             SERVER_NAME=self.journal_one.domain,
         )
         self.assertEqual(response.status_code, 200)
+
+
+@override_settings(URL_CONFIG="domain")
+class UserEditPermissionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.press = helpers.create_press()
+        cls.journal_one, cls.journal_two = helpers.create_journals()
+        helpers.create_roles(["editor", "author"])
+        cls.editor = helpers.create_user(
+            "editor@example.com",
+            roles=["editor"],
+            journal=cls.journal_one,
+            is_active=True,
+        )
+        cls.staff_member = helpers.create_user(
+            "staff@example.com",
+            is_staff=True,
+            is_active=True,
+        )
+        cls.superuser = helpers.create_user(
+            "super@example.com",
+            is_superuser=True,
+            is_active=True,
+        )
+        cls.author = helpers.create_user(
+            "author@example.com",
+            roles=["author"],
+            journal=cls.journal_one,
+            is_active=True,
+        )
+
+    def post_edit(self, user, account, email):
+        self.client.force_login(user)
+        return self.client.post(
+            reverse("core_user_edit", kwargs={"user_id": account.pk}),
+            {
+                "email": email,
+                "is_active": "True",
+                "first_name": "First",
+                "last_name": "Last",
+                "orcid": "0000-0002-1825-0097",
+                "enable_public_profile": "False",
+            },
+            SERVER_NAME=self.journal_one.domain,
+        )
+
+    def test_editor_cannot_edit_superuser(self):
+        response = self.post_edit(self.editor, self.superuser, "changed@example.com")
+        self.superuser.refresh_from_db()
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.superuser.email, "super@example.com")
+        self.assertFalse(self.superuser.orcid)
+
+    def test_editor_cannot_edit_staff(self):
+        response = self.post_edit(self.editor, self.staff_member, "changed@example.com")
+        self.staff_member.refresh_from_db()
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.staff_member.email, "staff@example.com")
+
+    def test_editor_can_edit_author(self):
+        response = self.post_edit(self.editor, self.author, "fixed@example.com")
+        self.author.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.author.email, "fixed@example.com")
+
+    def test_staff_cannot_edit_superuser(self):
+        response = self.post_edit(
+            self.staff_member, self.superuser, "changed@example.com"
+        )
+        self.superuser.refresh_from_db()
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.superuser.email, "super@example.com")
+
+    def test_superuser_can_edit_superuser(self):
+        other_superuser = helpers.create_user(
+            "super-two@example.com",
+            is_superuser=True,
+            is_staff=True,
+            is_active=True,
+        )
+        response = self.post_edit(other_superuser, self.superuser, "new@example.com")
+        self.superuser.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.superuser.email, "new@example.com")
+
+    def test_staff_can_edit_staff(self):
+        other_staff = helpers.create_user(
+            "staff-two@example.com",
+            is_staff=True,
+            is_active=True,
+        )
+        response = self.post_edit(self.staff_member, other_staff, "new@example.com")
+        other_staff.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(other_staff.email, "new@example.com")

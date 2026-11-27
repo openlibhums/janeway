@@ -29,7 +29,7 @@ from journal import (
     forms as journal_forms,
 )
 from press import models as press_models, forms, decorators
-from security.decorators import press_only
+from security.decorators import deny_access, press_only
 from submission import models as submission_models
 from utils import install, logger, setting_handler
 from utils.logic import get_janeway_version
@@ -402,6 +402,10 @@ def merge_users(request):
                 "Can't find users with ids %d, %d" % (from_id, to_id),
             )
         repository_logic.resolve_account_merge(from_acc, to_acc)
+        if (
+            from_acc.is_superuser or to_acc.is_superuser
+        ) and not request.user.is_superuser:
+            deny_access(request, "Only superusers can merge superuser accounts.")
         merge_models(from_acc, to_acc)
         messages.add_message(
             request,

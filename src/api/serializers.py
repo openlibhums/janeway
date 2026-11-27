@@ -454,6 +454,13 @@ class AccountRoleSerializer(serializers.ModelSerializer):
                 {"error": "You cannot add a user to that role via the API."}
             )
 
+        if (not request or not request.user.is_staff) and (
+            not request.journal or data.get("journal") != request.journal
+        ):
+            raise serializers.ValidationError(
+                {"error": "You can only add roles on the current journal."}
+            )
+
         return data
 
 

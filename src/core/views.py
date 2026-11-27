@@ -45,6 +45,7 @@ from security.decorators import (
     article_author_required,
     has_journal,
     any_editor_user_required,
+    deny_access,
     role_can_access,
     user_can_edit_setting,
 )
@@ -1557,7 +1558,11 @@ def user_edit(request, user_id):
     :param user_id: Account object PK
     :return: HttpResponse object
     """
-    user = models.Account.objects.get(pk=user_id)
+    user = get_object_or_404(models.Account, pk=user_id)
+    if (user.is_superuser and not request.user.is_superuser) or (
+        user.is_staff and not request.user.is_staff
+    ):
+        deny_access(request, "You cannot edit this account.")
     form = forms.EditAccountForm(instance=user)
     registration_form = forms.AdminUserForm(instance=user, request=request)
     next_url = request.GET.get("next", "")

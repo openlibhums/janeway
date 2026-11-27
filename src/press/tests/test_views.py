@@ -97,3 +97,44 @@ class PressContactTests(PressViewTestsWithData):
                 object_id=self.press.pk,
             ).exists()
         )
+
+
+@override_settings(URL_CONFIG="domain")
+class MergeUsersPermissionTests(PressViewTestsWithData):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.superuser = helpers.create_user(
+            "merge-super@example.org",
+            is_superuser=True,
+            is_staff=True,
+            is_active=True,
+        )
+
+    def merge(self, user, from_account, to_account):
+        self.client.force_login(user)
+        return self.client.post(
+            reverse("merge_users"),
+            {"from": from_account.pk, "to": to_account.pk},
+            SERVER_NAME=self.press.domain,
+        )
+
+    def test_staff_cannot_merge_superuser_away(self):
+        response = self.merge(self.press_manager, self.superuser, self.press_manager)
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(
+            core_models.Account.objects.filter(pk=self.superuser.pk).exists()
+        )
+
+    def test_staff_cannot_merge_into_superuser(self):
+        other = helpers.create_user("merge-other@example.org", is_active=True)
+        response = self.merge(self.press_manager, other, self.superuser)
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(core_models.Account.objects.filter(pk=other.pk).exists())
+
+    def test_staff_can_merge_other_accounts(self):
+        one = helpers.create_user("merge-one@example.org", is_active=True)
+        two = helpers.create_user("merge-two@example.org", is_active=True)
+        response = self.merge(self.press_manager, one, two)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(core_models.Account.objects.filter(pk=one.pk).exists())
